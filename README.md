@@ -1,9 +1,10 @@
 # SIA - Drink and Inventory Advisory
 
 Willkommen zum **SIADaIA**-Projekt!
+
 Dies ist ein Fullstack-Projekt mit einem modernen Vue 3 Frontend (Vite, Bootstrap, Chart.js) und einem Flask-Backend mit PostgreSQL-Anbindung.
+
 _In Planung:_ Einbindung HASKI-API
----
 
 ## Basic Git
 

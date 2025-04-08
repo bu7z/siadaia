@@ -16,14 +16,17 @@ Mindestens Node 18 wird vorausgesetzt.
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 ```
-```
+```bash
 source ~/.bashrc
 ```
-
 > Danach installieren:
 ```bash
 nvm install 20
+```
+```bash
 nvm use 20
+```
+```bash
 nvm alias default 20
 ```
 

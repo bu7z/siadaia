@@ -1,8 +1,3 @@
-<script setup>
-import AuthModal from './components/AuthModal.vue'
-import RegisterForm from './components/RegisterForm.vue'
-</script>
-
 <template>
   <!-- HERO -->
   <div class="bg-dark text-white text-center p-5 rounded-bottom shadow-sm">
@@ -23,7 +18,7 @@ import RegisterForm from './components/RegisterForm.vue'
       <button class="btn advisory-btn btn-drink px-5 py-3">
         🍹 Drink Advisory
       </button>
-      <button class="btn advisory-btn btn-inventory px-5 py-3" data-bs-toggle="modal" data-bs-target="#authModal">
+      <button class="btn advisory-btn btn-inventory px-5 py-3">
         📦 Inventory Advisory
       </button>
     </div>
@@ -90,9 +85,6 @@ import RegisterForm from './components/RegisterForm.vue'
   </small>
 </footer>
 
-
-
-<AuthModal />
 </template>
 
 <style scoped>

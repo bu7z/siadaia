@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "bootstrap": "^5.3.5",
+    "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.4.8",
     "chartjs-adapter-date-fns": "^3.0.0",
     "pinia": "^3.0.1",

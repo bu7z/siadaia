@@ -4,40 +4,43 @@ Willkommen zum **SIADaIA**-Projekt!
 
 Dies ist ein Fullstack-Projekt mit einem modernen Vue 3 Frontend (Vite, Bootstrap, Chart.js) und einem Flask-Backend mit PostgreSQL-Anbindung.
 
-_In Planung:_ Einbindung HASKI-API
-
+_In Planung:_ Einbindung der HASKI-API
 
 ## Projekt-Anforderungen
 
 ### Node/npm
-mindestens node 18 wir vorrausgesetzt
+Mindestens Node 18 wird vorausgesetzt.
 
-> apt max node-v = v12.22.9
-> Solution:
-```
+> apt max node-v = v12.22.9  
+> Lösung:
+```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-
+```
+```
 source ~/.bashrc
 ```
-> danach installieren:
-```
+
+> Danach installieren:
+```bash
 nvm install 20
 nvm use 20
 nvm alias default 20
 ```
 
+---
+
 ### Docker (Compose)
 
-1. Entfernen alle überbleibsel aus standard APT-Repo
-```
+1. Entfernen aller Überbleibsel aus dem Standard-APT-Repo:
+```bash
 sudo apt-get remove docker docker-engine docker.io containerd runc
 ```
 
-2. Erforderliche System-Tools
-```
+2. Erforderliche System-Tools:
+```bash
 sudo apt-get update
 ```
-```
+```bash
 sudo apt-get install -y \
     ca-certificates \
     curl \
@@ -45,19 +48,20 @@ sudo apt-get install -y \
     lsb-release
 ```
 
-3. Docker GPG-Key
-```
+3. Docker GPG-Key:
+```bash
 sudo mkdir -p /etc/apt/keyrings
 ```
-```
+```bash
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
     sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 ```
 
-4. Docker_repo (ubuntu)
-> Wichtig: ubuntu gegen eigene distro tauschen (bspw.: debian)
-> https://download.docker.com/linux/ubuntu -> https://download.docker.com/linux/debian 
-```
+4. Docker-Repo (Ubuntu):  
+> Wichtig: `ubuntu` ggf. gegen eigene Distro tauschen (z. B. `debian`)  
+> https://download.docker.com/linux/ubuntu → https://download.docker.com/linux/debian
+
+```bash
 echo \
   "deb [arch=$(dpkg --print-architecture) \
   signed-by=/etc/apt/keyrings/docker.gpg] \
@@ -66,117 +70,121 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
 
-
-5. APT-List aktualisieren
-```
+5. APT-Liste aktualisieren:
+```bash
 sudo apt-get update
 ```
 
-6. Docker + Compose aus docker repo installieren
-```
+6. Docker + Compose aus Docker-Repo installieren:
+```bash
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io \
     docker-buildx-plugin docker-compose-plugin
 ```
 
-7. Test
-```
+7. Test:
+```bash
 docker --version
 ```
-```
+```bash
 docker compose version
 ```
 
-
+---
 
 ## Basic Git
 
-
 ### Neuer Branch
 
-
-1. Erstellen eines neuen Branches
-```
+1. Erstellen eines neuen Branches:
+```bash
 git checkout -b <enter_your_branch_name>
 ```
 
-2. Staging-Area 
-```
+2. Staging-Area:
+```bash
 git add .
 ```
 
-3. Commiten mit eindeutiger Beschreibung
-```
+3. Commit mit eindeutiger Beschreibung:
+```bash
 git commit -m "https://whatthecommit.com/"
 ```
 
-4. erster push zum Repo
-```
+4. Erster Push zum Repo:
+```bash
 git push --set-upstream origin <enter_your_branch_name>
 ```
 
-4.1 fortlaufendes push
-```
+4.1 Fortlaufendes Push:
+```bash
 git push 
 ```
 
+---
+
 ### Mergen eines Branches
 
-
-1. Wechsel auf master (bzw. wohin du mergen wills)
-```
+1. Wechsel auf `master` (bzw. wohin du mergen willst):
+```bash
 git checkout master
 ```
 
-1.1 Aktuellste Änderungen reinholen (optional, aber empfehlenswert)
-
-```
+1.1 Aktuellste Änderungen reinholen (optional, aber empfehlenswert):
+```bash
 git pull origin master
 ```
 
-2. Merge durchführen
-```
+2. Merge durchführen:
+```bash
 git merge <frontend/experimental>
-# enter your branch name you want to mergen into "master"
+# Enter your branch name you want to merge into "master"
 ```
-potentielle Merge-Koflikte müssen manuell gelöst werden.
 
-3. Push zur Remote (GitHub)
-```
+> Potenzielle Merge-Konflikte müssen manuell gelöst werden.
+
+3. Push zur Remote (GitHub):
+```bash
 git push origin master
 ```
 
-### Löschen eines Branch
+---
 
-1. Lokales Löschen der Branches
-```
-git branch -d frontend/experimental
-# enter your branch name you want to delete
+### Löschen eines Branches
+
+1. Lokales Löschen des Branches:
+```bash
+git branch -d <frontend/experimental>
+# Enter your branch name you want to delete
 ```
 
-2. Remote löschen des Branches
+2. Remote-Löschen des Branches:
+```bash
+git push origin --delete <frontend/experimental>
+# Enter your branch name you want to delete
 ```
-git push origin --delete frontend/experimental
-```
+
+---
 
 ### Nice-to-know
 
 #### Synchronisieren einer Datei eines anderen Branches
-```
+```bash
 git checkout master -- README.md
 ```
-Kopiert/Merged nur die Datei README.md in den aktuellen Branch
+> Kopiert/merged nur die Datei `README.md` in den aktuellen Branch
 
-#### Einrichten eines alias
-```
+#### Einrichten eines Alias
+```bash
 git config --global alias.graph "log --oneline --graph --all --decorate"
 ```
-> Nun lässt sich mit:
 
-```
+> Nun lässt sich mit:
+```bash
 git graph
 ```
-> folgende Ausgabe genereiren
-```
+
+> folgende Ausgabe generieren:
+```bash
 * eab5672 (HEAD -> master, origin/master, origin/HEAD) Erweiterung README.md - Don’t even try to refactor it.
 *   05c3c71 Merge branch 'frontend/experimental' - Derp. Fix missing constant post rename
 |\  
@@ -187,8 +195,5 @@ git graph
 * | b8b1ac8 synced back from f/e - more debug... who overwrote!
 * | 807c64f Add initial README - Definitely fixing a mistake Copilot made. Totally not mine.
 |/  
-* 642b4e1 Initial commmit - Finished fondling.
+* 642b4e1 Initial commit - Finished fondling.
 ```
-
-
-

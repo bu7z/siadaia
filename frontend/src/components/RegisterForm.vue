@@ -8,6 +8,12 @@
           </div>
   
           <div class="modal-body">
+
+             <!-- Alert für Erfolg / Fehler -->
+            <div v-if="message" :class="['alert', messageType === 'success' ? 'alert-success' : 'alert-danger']" role="alert">
+              {{ message }}
+            </div>
+
             <form @submit.prevent="handleRegister">
               <div class="mb-3">
                 <label for="username" class="form-label">Benutzername</label>
@@ -76,27 +82,56 @@
   
   <script setup>
   import { ref } from 'vue'
-  
-  const username = ref('')
-  const password = ref('')
-  const confirmPassword = ref('')
-  const vorname = ref('')
-  const nachname = ref('')
-  
-  const handleRegister = () => {
-    if (password.value !== confirmPassword.value) {
-      alert('Passwörter stimmen nicht überein!')
-      return
-    }
-  
-    console.log('Registrieren mit:', {
-      username: username.value,
-      password: password.value,
-      vorname: vorname.value,
-      nachname: nachname.value
-    })
-  
-    // TODO: POST an Flask-API schicken
+
+const username = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const vorname = ref('')
+const nachname = ref('')
+const message = ref('')
+const messageType = ref('') // success | danger
+
+const handleRegister = async () => {
+  if (password.value !== confirmPassword.value) {
+    message.value = 'Passwörter stimmen nicht überein.'
+    messageType.value = 'danger'
+    return
   }
+
+  try {
+    const res = await fetch('http://localhost:5000/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: username.value,
+        password: password.value,
+        vorname: vorname.value,
+        nachname: nachname.value
+      })
+    })
+
+    const data = await res.json()
+
+    if (data.success) {
+      message.value = data.message || 'Registrierung erfolgreich!'
+      messageType.value = 'success'
+      resetForm()
+    } else {
+      message.value = data.message || 'Fehler bei der Registrierung'
+      messageType.value = 'danger'
+    }
+  } catch (err) {
+    message.value = 'Verbindungsfehler mit dem Server.'
+    messageType.value = 'danger'
+  }
+}
+
+const resetForm = () => {
+  username.value = ''
+  password.value = ''
+  confirmPassword.value = ''
+  vorname.value = ''
+  nachname.value = ''
+}
   </script>
   

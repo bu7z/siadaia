@@ -1,3 +1,7 @@
 flask
 requests
 psycopg2-binary
+flask-cors
+bcrypt
+flask-jwt-extended
+dotenv

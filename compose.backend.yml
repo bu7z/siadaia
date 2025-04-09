@@ -20,15 +20,21 @@ services:
       - "5000:5000"
     depends_on:
       - db
+    env_file:
+      - .env
     environment:
+      FLASK_ENV: development
+      FLASK_DEBUG: 1
+      FLASK_APP: main.py
       DB_HOST: db
       DB_PORT: 5432
       DB_NAME: mydatabase
       DB_USER: myuser
       DB_PASS: mypassword
     volumes:
-      - ./backend:/app
+      - ./backend/app:/app
     restart: always
+    command: flask run --host=0.0.0.0
 
 volumes:
   postgres_data:

@@ -18,6 +18,10 @@
             ></button>
           </div>
           <div class="modal-body">
+            <div v-if="message" :class="['alert', messageType === 'success' ? 'alert-success' : 'alert-danger']" role="alert">
+                  {{ message }}
+              </div>
+
             <form @submit.prevent="handleLogin">
               <div class="mb-3">
                 <label for="username" class="form-label">Benutzername</label>
@@ -53,8 +57,11 @@
                     >
                     Registrieren
                 </button>
+
+                
               </div>
             </form>
+                
           </div>
         </div>
       </div>
@@ -67,19 +74,47 @@
   <script setup>
   import { ref } from 'vue'
   import RegisterForm from './RegisterForm.vue'
+  import { useRouter } from 'vue-router'
+
+  const router = useRouter()
   
   const username = ref('')
   const password = ref('')
-  
-  const handleLogin = () => {
-    console.log('Login:', username.value, password.value)
-    // Hier kommt später dein API-Call hin
-    // z.B. fetch('/api/login', { method: 'POST', body: JSON.stringify(...) })
+  const message = ref('')
+  const messageType = ref('')
+
+  const handleLogin = async () => {
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: username.value,
+          password: password.value
+        })
+      })
+
+      const data = await res.json()
+
+      if (data.success && data.token) {
+        message.value = 'Login erfolgreich ✅'
+        messageType.value = 'success'
+        localStorage.setItem('token', data.token)
+        console.log('Token gespeichert:', data.token)
+
+        setTimeout(() => {
+          router.push('/inventory')
+        }, 2000)
+      } else {
+        message.value = data.message
+        messageType.value = 'danger'
+      }
+    } catch (err) {
+      message.value = 'Server nicht erreichbar'
+      messageType.value = 'danger'
+    }
   }
+
   
-  const handleRegister = () => {
-    console.log('Register:', username.value, password.value)
-    // Hier ebenfalls Registrierungshandler
-  }
   </script>
   

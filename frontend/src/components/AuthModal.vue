@@ -75,6 +75,7 @@
   import { ref } from 'vue'
   import RegisterForm from './RegisterForm.vue'
   import { useRouter } from 'vue-router'
+  import * as bootstrap from 'bootstrap'
 
   const router = useRouter()
   
@@ -101,10 +102,11 @@
         messageType.value = 'success'
         localStorage.setItem('token', data.token)
         console.log('Token gespeichert:', data.token)
+        bootstrap.Modal.getOrCreateInstance('#authModal').hide()
 
         setTimeout(() => {
           router.push('/inventory')
-        }, 2000)
+        }, 1750)
       } else {
         message.value = data.message
         messageType.value = 'danger'

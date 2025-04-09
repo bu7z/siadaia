@@ -25,7 +25,9 @@ app.config["JWT_HEADER_TYPE"] = "Bearer"
 jwt = JWTManager(app) 
 
 
-# Testing
+###########
+# Testing #
+###########
 
 @app.route('/')
 def hello():
@@ -33,11 +35,21 @@ def hello():
 
 @app.route('/api/test-db')
 def test_db():
-    return db_connector.function_db_test()
+    return db_connector.db_test()
 
 @app.route('/api/status')
 def status():
     return jsonify({"status": "OK"})
+
+# Inventar #
+@app.route('/api/test-inventory')
+def test_inventory():
+    return db_connector.inventory_test()
+# Bestand #
+@app.route('/api/test-bestand')
+def test_bestand():
+    return db_connector.bestand_test()
+
 
 
 #################
@@ -123,6 +135,42 @@ def verify_token():
         "id": get_jwt().get("id"),
         "rolle": get_jwt().get("rolle")
     })
+
+#################
+# Chart Bestand #
+#################
+@app.route('/api/bestand', methods=['GET'])
+#@jwt_required()
+def get_inventory_bestand():
+    try:
+        conn = db_connector.get_db_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT ib.id, ib.inventar_id, i.name, ib.datum, ib.anzahl_flaschen
+            FROM inventar_bestand ib
+            JOIN inventar i ON ib.inventar_id = i.id
+            ORDER BY ib.datum ASC
+        """)
+
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+
+        result = [
+            {
+                "id": row[0],
+                "inventar_id": row[1],
+                "produktname": row[2],
+                "datum": row[3].isoformat(),
+                "anzahl": row[4]
+            }
+            for row in rows
+        ]
+
+        return jsonify({"inventar": result})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 

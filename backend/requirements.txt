@@ -5,3 +5,4 @@ flask-cors
 bcrypt
 flask-jwt-extended
 dotenv
+openai

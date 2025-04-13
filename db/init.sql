@@ -33,7 +33,7 @@ VALUES
   ('Hirsch Helles', 20, 330, 0.87, 2.50, 'hirsch_helles.png'),
   ('Hirsch Zwuckl', 20, 330, 0.87, 2.50, 'hirsch_zwuckl.png'),
   ('Club Mate', 20, 330, 1.12, 2.50, 'club_mate.png'),
-  ('9 Mile Vodka', 6, 1000, 16.45, 2.50, 'mile_vodka.png');
+  ('9 Mile Vodka', 6, 1000, 16.45, 80, 'mile_vodka.png');
 
 
 

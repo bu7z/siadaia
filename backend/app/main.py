@@ -11,6 +11,7 @@ from flask_jwt_extended.exceptions import NoAuthorizationError
 
 # files
 import db_connector
+import openai_connector
 
 
 load_dotenv()
@@ -68,28 +69,14 @@ def register_user():
     if not username or not password:
         return jsonify({'success': False, 'message': 'Benutzername und Passwort sind erforderlich'}), 400
 
-    conn = db_connector.get_db_connection()
-    cur = conn.cursor()
-
-    # Prüfen, ob Benutzername schon existiert
-    cur.execute("SELECT id FROM benutzer WHERE benutzername = %s", (username,))
-    if cur.fetchone():
-        cur.close()
-        conn.close()
+    if db_connector.check_username(username):
         return jsonify({'success': False, 'message': 'Benutzername bereits vergeben'}), 409
 
     # Passwort hashen
     hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     # Neuen Benutzer einfügen
-    cur.execute("""
-        INSERT INTO benutzer (benutzername, passwort, vorname, nachname, rolle)
-        VALUES (%s, %s, %s, %s, %s)
-    """, (username, hashed_pw, vorname, nachname, 'user'))
-
-    conn.commit()
-    cur.close()
-    conn.close()
+    db_connector.create_user(username, hashed_pw, vorname, nachname)
 
     return jsonify({'success': True, 'message': 'Registrierung erfolgreich'})
 
@@ -106,19 +93,15 @@ def login():
     if not username or not password:
         return jsonify({'success': False, 'message': 'Benutzername und Passwort erforderlich'}), 400
 
-    conn = db_connector.get_db_connection()
-    cur = conn.cursor()
-
-    cur.execute("SELECT id, passwort, rolle FROM benutzer WHERE benutzername = %s", (username,))
-    user = cur.fetchone()
+    user = db_connector.get_user(username)
 
     if user and bcrypt.checkpw(password.encode('utf-8'), user[1].encode('utf-8')):
         user_id = user[0]
         rolle = user[2]
         token = create_access_token(identity=username, additional_claims={
-        'id': user_id,
-        'rolle': rolle
-    })
+            'id': user_id,
+            'rolle': rolle
+        })
         return jsonify({'success': True, 'message': 'Login erfolgreich', 'token': token})
 
     return jsonify({'success': False, 'message': 'Login fehlgeschlagen'}), 401
@@ -140,22 +123,10 @@ def verify_token():
 # Chart Bestand #
 #################
 @app.route('/api/bestand', methods=['GET'])
-#@jwt_required()
+@jwt_required() #TODO: activated verification
 def get_inventory_bestand():
     try:
-        conn = db_connector.get_db_connection()
-        cur = conn.cursor()
-
-        cur.execute("""
-            SELECT ib.id, ib.inventar_id, i.name, ib.datum, ib.anzahl_flaschen
-            FROM inventar_bestand ib
-            JOIN inventar i ON ib.inventar_id = i.id
-            ORDER BY ib.datum ASC
-        """)
-
-        rows = cur.fetchall()
-        cur.close()
-        conn.close()
+        rows = db_connector.get_bestand()
 
         result = [
             {
@@ -174,6 +145,48 @@ def get_inventory_bestand():
 
 
 
+##################
+# Drink Advisory #
+##################
+@app.route('/api/beratung', methods=['POST'])
+def beratung():
+    data = request.get_json()
+    vibe = data.get('vibe')
+    preferences = data.get('preferences', [])
+
+    drinks_available = db_connector.get_available_drinks()
+
+    response_msg = openai_connector.get_drink_recommendation(vibe, preferences, drinks_available)
+
+    return jsonify({
+        "success": True,
+        "drink": response_msg
+    })
+
+
+@app.route('/api/check', methods=['POST'])
+def check():
+    data = request.get_json()
+    drink = data.get('drink', '')
+
+    drinks_available = db_connector.get_available_drinks()
+
+    inquiry_check = openai_connector.validate_drink_inquiry(drink, drinks_available)
+
+    return jsonify({
+        "success": True,
+        "drink": inquiry_check
+    })
+
+@app.route('/api/examples', methods=['GET'])
+def create():
+    drinks_available = db_connector.get_available_drinks()
+    examples_drinks = openai_connector.create_example_drinks(drinks_available)
+
+    return jsonify({
+        "success": True,
+        "drinks": examples_drinks
+    })
 
 
 

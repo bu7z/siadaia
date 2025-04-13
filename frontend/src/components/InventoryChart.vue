@@ -116,8 +116,14 @@ const updateChart = () => {
 }
 
 onMounted(async () => {
-  const res = await fetch('/api/bestand')
-  const json = await res.json()
+  const token = localStorage.getItem('token')
+
+  const res = await fetch('/api/bestand', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+    const json = await res.json()
   rawData.value = json.inventar
 
   const allDates = rawData.value.map(e => e.datum?.split('T')[0]).sort()

@@ -1,6 +1,8 @@
 import os
 import psycopg2
 from flask import Flask, jsonify
+import bcrypt
+from flask_jwt_extended import JWTManager, create_access_token
 
 # Testing
 def db_test():
@@ -104,6 +106,103 @@ def bestand_test():
 #################
 # Registrierung #
 #################
+def check_username(username):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # Prüfen, ob Benutzername schon existiert
+    cur.execute("SELECT id FROM benutzer WHERE benutzername = %s", (username,))
+    if cur.fetchone():
+        cur.close()
+        conn.close()
+        return True
+
+def create_user(username, hashed_pw, vorname, nachname):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO benutzer (benutzername, passwort, vorname, nachname, rolle)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (username, hashed_pw, vorname, nachname, 'user'))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+#########
+# Login #
+#########
+def get_user(username):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT id, passwort, rolle FROM benutzer WHERE benutzername = %s", (username,))
+    user = cur.fetchone()
+    cur.close()
+    conn.close()
+    return user
+    
+
+#################
+# Chart Bestand #
+#################
+def get_bestand():
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT ib.id, ib.inventar_id, i.name, ib.datum, ib.anzahl_flaschen
+        FROM inventar_bestand ib
+        JOIN inventar i ON ib.inventar_id = i.id
+        ORDER BY ib.datum ASC
+    """)
+
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return rows
+
+#####################
+# Beratung - Drinks #
+#####################
+def get_available_drinks():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT 
+            i.name,
+            i.vk_preis,
+            i.ml_pro_einheit
+        FROM inventar i
+        JOIN (
+            SELECT DISTINCT ON (inventar_id)
+                inventar_id,
+                anzahl_flaschen
+            FROM inventar_bestand
+            ORDER BY inventar_id, datum DESC
+        ) b ON i.id = b.inventar_id
+        WHERE b.anzahl_flaschen > 0;
+    """)
+
+    rows = cur.fetchall()
+    result = [
+        {
+            "name": row[0],
+            "vk_preis": float(row[1]),
+            "ml_pro_einheit": row[2]
+        }
+        for row in rows
+    ]
+
+    cur.close()
+    conn.close()
+    return result
+
+
 
 def get_db_connection():
     return psycopg2.connect(
@@ -113,3 +212,5 @@ def get_db_connection():
         user=os.environ['DB_USER'],
         password=os.environ['DB_PASS']
     )
+
+

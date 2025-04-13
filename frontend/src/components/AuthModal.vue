@@ -30,7 +30,7 @@
                   type="text"
                   class="form-control bg-dark text-white border-secondary"
                   id="username"
-                  placeholder="z. B. admin01"
+                  placeholder="Benutername"
                   required
                 />
               </div>

@@ -1,6 +1,6 @@
 # frontend/Dockerfile
 
-FROM node:18-alpine
+FROM node:18
 
 WORKDIR /app
 COPY . .

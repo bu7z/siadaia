@@ -1,0 +1,17 @@
+<script setup>
+</script>
+
+<template>
+  <!-- HERO -->
+  <div class="bg-dark text-white text-center p-5 shadow-sm">
+    <img
+      src="@/assets/SIA_logo.svg"
+      alt="SIA Logo"
+      
+      style="max-height: 100px;"
+    />
+    <p class="text-white-50 mb-1 fs-6">Drink Advisory</p>
+    <p class="lead mb-0">Der Erste seiner Art.</p>
+  </div>
+
+</template>

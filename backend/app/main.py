@@ -168,6 +168,11 @@ def beratung():
 def check():
     data = request.get_json()
     drink = data.get('drink', '')
+    if "aschenbecher" in drink.lower():
+         return jsonify({
+        "success": True,
+        "drink": "Club Mate ...\nLuL"
+    })
 
     drinks_available = db_connector.get_available_drinks()
 

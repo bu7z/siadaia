@@ -8,6 +8,13 @@ import { ref } from 'vue'
 const router = useRouter()
 const isFading = ref(false)
 
+const handleFadeAndRedirect = () => {
+  isFading.value = true
+  setTimeout(() => {
+    router.push('/inventory')
+  }, 600)
+}
+
 const goToDrinkView = () => {
   isFading.value = true
   setTimeout(() => {
@@ -20,6 +27,7 @@ const goToDrinkView = () => {
   <div class="home-view-container position-relative overflow-hidden">
     <!-- Reusable Fade Transition -->
     <FadeOverlay :visible="isFading" />
+    
 
     <!-- HERO -->
     <div class="bg-dark text-white text-center p-5 rounded-bottom shadow-sm">
@@ -101,7 +109,7 @@ const goToDrinkView = () => {
       </div>
     </section>
 
-    <AuthModal />
+    <AuthModal @startFade="handleFadeAndRedirect" />
     <Footer />
   </div>
 </template>

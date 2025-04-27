@@ -1,14 +1,16 @@
 <script setup>
+import NavBar from '@/components/NavBar.vue'
+import Footer from '@/components/Footer.vue'
+import HeroInventory from '@/components/HeroInventory.vue'
+import InventoryChart from '@/components/InventoryChart.vue'
+
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import HeroInventory from '../components/HeroInventory.vue'
-import Footer from '@/components/Footer.vue'
-import InventoryChart from '@/components/InventoryChart.vue'
 
 const router = useRouter()
 const user = ref(null)
-const error = ref('')
 const loading = ref(true)
+const error = ref('')
 
 onMounted(async () => {
   const token = localStorage.getItem('token')
@@ -34,6 +36,7 @@ onMounted(async () => {
       router.push('/')
     }
   } catch (err) {
+    console.error('❌ Fehler beim Token-Check:', err)
     localStorage.removeItem('token')
     router.push('/')
   }
@@ -41,48 +44,35 @@ onMounted(async () => {
 </script>
 
 <template>
-    <HeroInventory />
+  <HeroInventory />
+
   <div v-if="loading" class="text-center text-white py-5">
     <div class="spinner-border text-light" role="status">
       <span class="visually-hidden">Lade...</span>
     </div>
   </div>
-  
-  <div v-else class="dashboard-container text-white">
-    <aside class="sidebar d-flex flex-column align-items-center pt-4">
-      <img src="@/assets/SIA_logo.svg" alt="SIA Logo" style="width: 40px; margin-bottom: 2rem;" />
-      <i class="bi bi-box-seam fs-4 mb-4" title="Inventory"></i>
-      <i class="bi bi-bar-chart-line fs-4 mb-4" title="Statistics"></i>
-      <i class="bi bi-person-circle fs-4" title="User"></i>
-    </aside>
 
-    
+  <div v-else class="dashboard-container text-white">
+    <NavBar />
 
     <main class="main-content px-4 py-4">
       <h2>Hallo, {{ user.username }} 👋</h2>
       <p class="mb-4">Du bist eingeloggt als <strong>{{ user.rolle }}</strong>.</p>
 
-      
-      
-      
-
       <div class="container my-5">
-            <div class="row g-4">
-            <!-- Linke Komponente -->
-            <div class="col-md-6">
-                <InventoryChart />
-            </div>
-
-            <!-- Rechte Komponente -->
-            <div class="col-md-6">
-                <InventoryChart />
-            </div>
-            </div>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <InventoryChart />
+          </div>
+          <div class="col-md-6">
+            <InventoryChart />
+          </div>
         </div>
-      
+      </div>
     </main>
   </div>
-  <Footer/>
+
+  <Footer />
 </template>
 
 <style scoped>

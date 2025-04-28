@@ -2,6 +2,7 @@ import cv2
 import time
 from ultralytics import YOLO
 from dotenv import load_dotenv
+import os
 
 
 # Kamera-Stream mit YOLOv8n
@@ -32,6 +33,6 @@ def generate_camera_stream():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
-        time.sleep(5)  # Nur alle 5 Sekunden ein Frame
+        #time.sleep(5)  # Nur alle 5 Sekunden ein Frame
 
     cap.release()

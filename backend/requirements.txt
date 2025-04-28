@@ -5,6 +5,6 @@ flask-cors
 bcrypt
 flask-jwt-extended
 dotenv
-cv2
+opencv-python
 ultralytics
 openai

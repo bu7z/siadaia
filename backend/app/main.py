@@ -2,7 +2,7 @@
 import os
 from dotenv import load_dotenv
 import psycopg2
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
 import bcrypt
 from flask_jwt_extended import JWTManager, create_access_token
@@ -12,6 +12,7 @@ from flask_jwt_extended.exceptions import NoAuthorizationError
 # files
 import db_connector
 import openai_connector
+import object_detector
 
 
 load_dotenv()
@@ -192,6 +193,14 @@ def create():
         "success": True,
         "drinks": examples_drinks
     })
+
+####################
+# Object Detection #
+####################
+@app.route('/api/camera-feed')
+def camera_feed():
+    return Response(object_detector.generate_camera_stream(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 
 

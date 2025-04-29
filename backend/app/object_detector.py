@@ -24,7 +24,7 @@ def generate_camera_stream():
             break
 
         # YOLO Personenerkennung
-        results = model.predict(source=frame, conf=0.4, classes=[0], verbose=False)
+        results = model.predict(source=frame, conf=0.4, classes=[0,39], verbose=False)
         annotated = results[0].plot()
 
         _, buffer = cv2.imencode('.jpg', annotated)

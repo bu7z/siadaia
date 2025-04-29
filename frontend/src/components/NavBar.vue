@@ -10,9 +10,9 @@ const navigate = (path) => {
 
 <template>
   <aside class="sidebar d-flex flex-column align-items-center pt-4">
-    <img src="@/assets/SIA_logo.svg" alt="SIA Logo" style="width: 40px; margin-bottom: 2rem;" />
+    <img src="@/assets/SIA_logo.svg" alt="SIA Logo" title="Inventory" @click="navigate('/inventory')" style="width: 40px; margin-bottom: 2rem; cursor: pointer;" />
 
-    <i class="bi bi-box-seam fs-4 mb-4" title="Inventory" @click="navigate('/inventory')"></i>
+    <i class="bi bi-box-seam fs-4 mb-4" title="Stock" @click="navigate('/stock')"></i>
     <i class="bi bi-bar-chart-line fs-4 mb-4" title="Statistics" @click="navigate('/statistics')"></i>
     <i class="bi bi-person-circle fs-4" title="User" @click="navigate('/user')"></i>
   </aside>

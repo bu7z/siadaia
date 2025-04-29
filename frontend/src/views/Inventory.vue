@@ -36,7 +36,7 @@ onMounted(async () => {
       router.push('/')
     }
   } catch (err) {
-    console.error('❌ Fehler beim Token-Check:', err)
+    console.error('Fehler beim Token-Check:', err)
     localStorage.removeItem('token')
     router.push('/')
   }

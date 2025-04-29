@@ -14,13 +14,13 @@ def generate_camera_stream():
     cap = cv2.VideoCapture(CAMERA_URL)
 
     if not cap.isOpened():
-        print("❌ Kamera nicht erreichbar!")
+        print("Kamera nicht erreichbar!")
         return
 
     while True:
         ret, frame = cap.read()
         if not ret:
-            print("❌ Fehler beim Kamerabild")
+            print("Fehler beim Kamerabild")
             break
 
         # YOLO Personenerkennung

@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import Inventory from '../views/Inventory.vue'
 import Drink from '../views/Drink.vue'
 import LiveStorage from '@/views/LiveStorage.vue'
+import User from '@/views/User.vue'
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/live',
     name: 'live',
     component: LiveStorage,
+  },
+  {
+    path: '/user',
+    name: 'User',
+    component: User,
   }
 ]
 

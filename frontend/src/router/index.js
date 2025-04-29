@@ -4,6 +4,7 @@ import Inventory from '../views/Inventory.vue'
 import Drink from '../views/Drink.vue'
 import LiveStorage from '@/views/LiveStorage.vue'
 import User from '@/views/User.vue'
+import ObjectDetection from '@/views/ObjectDetection.vue'
 
 const routes = [
   {
@@ -30,6 +31,11 @@ const routes = [
     path: '/user',
     name: 'User',
     component: User,
+  },
+  {
+    path: '/object',
+    name: 'ObjectDetection',
+    component: ObjectDetection,
   }
 ]
 

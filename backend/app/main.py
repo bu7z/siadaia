@@ -197,13 +197,20 @@ def create():
 ####################
 # Object Detection #
 ####################
+# draw boxes around storage
 @app.route('/api/camera-feed-sto')
 def camera_feed_sto():
     return Response(object_detector.generate_camera_stream(1), mimetype='multipart/x-mixed-replace; boundary=frame')
-
+# draw boxes around audience
 @app.route('/api/camera-feed-aud')
 def camera_feed_aud():
     return Response(object_detector.generate_camera_stream(2), mimetype='multipart/x-mixed-replace; boundary=frame')
+# count people in audience feed
+# TODO: write to database?
+@app.route('/api/person-count', methods=['GET'])
+def get_person_count():
+    from object_detector import person_count
+    return jsonify({"count": person_count})
 
 
 if __name__ == '__main__':

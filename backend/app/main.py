@@ -197,11 +197,13 @@ def create():
 ####################
 # Object Detection #
 ####################
-@app.route('/api/camera-feed')
-def camera_feed():
-    return Response(object_detector.generate_camera_stream(), mimetype='multipart/x-mixed-replace; boundary=frame')
+@app.route('/api/camera-feed-sto')
+def camera_feed_sto():
+    return Response(object_detector.generate_camera_stream(1), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-
+@app.route('/api/camera-feed-aud')
+def camera_feed_aud():
+    return Response(object_detector.generate_camera_stream(2), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':

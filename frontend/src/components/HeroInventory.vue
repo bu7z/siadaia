@@ -1,4 +1,11 @@
 <script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const navigate = (path) => {
+  router.push(path)
+}
 </script>
 
 <template>
@@ -7,7 +14,7 @@
     <img
       src="@/assets/SIA_logo.svg"
       alt="SIA Logo"
-      
+      @click="navigate('/')"
       style="max-height: 100px;"
     />
     <p class="text-white-50 mb-1 fs-6">Inventory Advisory</p>

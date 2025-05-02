@@ -8,12 +8,11 @@ CREATE TABLE IF NOT EXISTS benutzer (
     erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
 INSERT INTO benutzer (benutzername, passwort, vorname, nachname, rolle)
 VALUES 
-  ('admin01', 'admin123', 'Anette', 'Tester', 'admin'),
-  ('member01', 'member456', 'Mikro', 'Soft', 'member'),
-  ('user02', 'user789', 'Tea', 'Time', 'user');
+  ('admin01', '$2b$12$yPNR20SDJ2yTS152PVIvBeO7OWvXBsFJlm42ebfxNub5mAFoCqBk2', 'Anette', 'Tester', 'admin'), -- admin123
+  ('member01', '$2b$12$rqR2dbYBvXZyxqjNHrhvNeUgjOU20jPHTEYtQKSC3jSkIdv5z0jyq', 'Mikro', 'Soft', 'member'), -- member456
+  ('user02', '$2b$12$nMfWe/.Kc9Khq2iT7.yTRu0kEijE4DnHT4ZXRlUtAf7FwAfE/sbRe', 'Tea', 'Time', 'user');       -- user789
 
 
 

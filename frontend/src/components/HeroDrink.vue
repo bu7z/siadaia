@@ -1,4 +1,11 @@
 <script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const navigate = (path) => {
+  router.push(path)
+}
 </script>
 
 <template>
@@ -7,8 +14,9 @@
     <img
       src="@/assets/SIA_logo.svg"
       alt="SIA Logo"
-      
-      style="max-height: 100px;"
+      title="Homepage"
+      @click="navigate('/')"
+      style="max-height: 100px; cursor: pointer;"
     />
     <p class="text-white-50 mb-1 fs-6">Drink Advisory</p>
     <p class="lead mb-0">Der Erste seiner Art.</p>

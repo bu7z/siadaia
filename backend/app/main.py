@@ -95,6 +95,9 @@ def login():
         return jsonify({'success': False, 'message': 'Benutzername und Passwort erforderlich'}), 400
 
     user = db_connector.get_user(username)
+    print("Benutzerdaten:", user)
+    if user:
+        print("Passwort-Rohwert aus DB (user[1]):", repr(user[1]))
 
     if user and bcrypt.checkpw(password.encode('utf-8'), user[1].encode('utf-8')):
         user_id = user[0]
@@ -106,6 +109,28 @@ def login():
         return jsonify({'success': True, 'message': 'Login erfolgreich', 'token': token})
 
     return jsonify({'success': False, 'message': 'Login fehlgeschlagen'}), 401
+
+##########
+# Logout #
+##########
+@app.route('/api/change-password', methods=['POST'])
+@jwt_required()
+def change_password():
+    data = request.get_json()
+    new_password = data.get('new_password')
+    user_id = get_jwt().get("id")
+
+    if not new_password:
+        return jsonify({"success": False, "message": "Neues Passwort fehlt"}), 400
+
+    try:
+        hashed_pw = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        db_connector.update_user_password(user_id, hashed_pw)
+        return jsonify({"success": True, "message": "Passwort erfolgreich geändert"})
+    except Exception as e:
+        print("Fehler beim Passwort-Update:", e)
+        return jsonify({"success": False, "message": "Fehler beim Aktualisieren"}), 500
+
 
 
 #######################
@@ -197,6 +222,7 @@ def create():
 ####################
 # Object Detection #
 ####################
+# TODO: JWT-Controlled Environment
 # draw boxes around storage
 @app.route('/api/camera-feed-sto')
 def camera_feed_sto():

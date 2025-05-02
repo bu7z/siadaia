@@ -142,7 +142,22 @@ def get_user(username):
     cur.close()
     conn.close()
     return user
-    
+
+##########
+# Logout #
+##########
+def update_user_password(user_id, hashed_password):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    query = """
+        UPDATE benutzer
+        SET passwort = %s
+        WHERE id = %s
+    """
+    cur.execute(query, (hashed_password, user_id))
+    conn.commit()
+    cur.close()
+    conn.close()
 
 #################
 # Chart Bestand #
@@ -212,5 +227,3 @@ def get_db_connection():
         user=os.environ['DB_USER'],
         password=os.environ['DB_PASS']
     )
-
-

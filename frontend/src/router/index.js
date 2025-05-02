@@ -5,6 +5,8 @@ import Drink from '../views/Drink.vue'
 import LiveStorage from '@/views/LiveStorage.vue'
 import User from '@/views/User.vue'
 import ObjectDetection from '@/views/ObjectDetection.vue'
+import StockDashboard from '@/views/StockDashboard.vue'
+import Statistics from '@/views/Statistics.vue'
 
 const routes = [
   {
@@ -36,6 +38,16 @@ const routes = [
     path: '/object',
     name: 'ObjectDetection',
     component: ObjectDetection,
+  },
+  {
+    path: '/stock',
+    name: 'StockDashboard',
+    component: StockDashboard,
+  },
+  {
+    path: '/statistics',
+    name: 'Statistics',
+    component: Statistics,
   }
 ]
 

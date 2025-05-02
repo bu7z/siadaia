@@ -81,7 +81,10 @@
   </template>
   
   <script setup>
-  import { ref } from 'vue'
+  import { ref, defineEmits } from 'vue'
+  import * as bootstrap from 'bootstrap'
+
+const emit = defineEmits(['switchToLogin'])
 
 const username = ref('')
 const password = ref('')
@@ -115,7 +118,19 @@ const handleRegister = async () => {
     if (data.success) {
       message.value = data.message || 'Registrierung erfolgreich!'
       messageType.value = 'success'
-      resetForm()
+      
+      // NICHT SOFORT Form schließen
+      setTimeout(() => {
+        const modal = bootstrap.Modal.getOrCreateInstance('#registerModal')
+        modal.hide()
+
+        emit('switchToLogin', {
+          username: username.value,
+          password: password.value
+        })
+      }, 500)
+
+
     } else {
       message.value = data.message || 'Fehler bei der Registrierung'
       messageType.value = 'danger'

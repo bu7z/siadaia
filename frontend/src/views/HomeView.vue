@@ -8,6 +8,12 @@ import { ref } from 'vue'
 const router = useRouter()
 const isFading = ref(false)
 
+const loginPrefill = ref({})
+
+const handleSwitchToLogin = (data) => {
+  loginPrefill.value = data
+}
+
 const handleFadeAndRedirect = () => {
   isFading.value = true
   setTimeout(() => {
@@ -109,7 +115,11 @@ const goToDrinkView = () => {
       </div>
     </section>
 
-    <AuthModal @startFade="handleFadeAndRedirect" />
+    <AuthModal
+      @startFade="handleFadeAndRedirect"
+      @switchToLogin="handleSwitchToLogin"
+      :prefill="loginPrefill"
+    />
     <Footer />
   </div>
 </template>

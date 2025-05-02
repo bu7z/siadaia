@@ -1,7 +1,27 @@
 <script setup>
-import { ref, defineEmits } from 'vue'
+import { ref, defineEmits, watch } from 'vue'
 import RegisterForm from './RegisterForm.vue'
 import * as bootstrap from 'bootstrap'
+
+const props = defineProps({
+  prefill: {
+    type: Object,
+    default: () => ({})
+  }
+})
+
+const forwardSwitchToLogin = (data) => {
+  emit('switchToLogin', data)
+}
+
+watch(() => props.prefill, (val) => {
+  if (val?.username) username.value = val.username
+  if (val?.password) password.value = val.password
+
+  // Loginmodal anzeigen
+  const modal = new bootstrap.Modal('#authModal')
+  modal.show()
+})
 
 const emit = defineEmits(['startFade'])
 
@@ -121,5 +141,5 @@ const handleLogin = async () => {
   </div>
 
   <!-- Optional: Dein Register Modal -->
-  <RegisterForm />
+  <RegisterForm @switchToLogin="forwardSwitchToLogin" />
 </template>

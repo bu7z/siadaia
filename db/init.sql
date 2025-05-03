@@ -21,18 +21,20 @@ CREATE TABLE IF NOT EXISTS inventar (
     name VARCHAR(100) NOT NULL,
     packungseinheit INTEGER NOT NULL,         -- z. B. Anzahl der Flaschen pro Kasten/Paket
     ml_pro_einheit INTEGER NOT NULL,          -- z. B. 700 ml pro Flasche
-    ek_preis NUMERIC(10, 2) NOT NULL,         -- Einkaufspreis pro Flasche?
+    ek_preis NUMERIC(10, 2) NOT NULL,         -- Einkaufspreis pro Flasche
     vk_preis NUMERIC(10, 2) NOT NULL,         -- Verkaufspreis
     bild TEXT,                                -- z. B. Pfad oder URL zum Bild (kann NULL sein)
+    kategorie VARCHAR(50),                    -- z. B. Biere, Spirituosen, Softdrinks 0,33l
     erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO inventar (name, packungseinheit, ml_pro_einheit, ek_preis, vk_preis, bild)
+INSERT INTO inventar (name, packungseinheit, ml_pro_einheit, ek_preis, vk_preis, bild, kategorie)
 VALUES
-  ('Hirsch Helles', 20, 330, 0.87, 2.50, 'hirsch_helles.png'),
-  ('Hirsch Zwuckl', 20, 330, 0.87, 2.50, 'hirsch_zwuckl.png'),
-  ('Club Mate', 20, 330, 1.12, 2.50, 'club_mate.png'),
-  ('9 Mile Vodka', 6, 1000, 16.45, 80, 'mile_vodka.png');
+  ('Hirsch Helles', 20, 330, 0.87, 2.50, 'hirsch_helles.png', 'Biere'),
+  ('Hirsch Zwuckl', 20, 330, 0.87, 2.50, 'hirsch_zwuckl.png', 'Biere'),
+  ('Club Mate', 20, 330, 1.12, 2.50, 'club_mate.png', 'Softdrinks 0,33l'),
+  ('9 Mile Vodka', 6, 1000, 1.32, 2.50, 'mile_vodka.png', 'Spirituosen');
+  ('Coca Cola', 12, 1000, 16.45, 80, 'coca_cola.png', 'Softdrinks 1l');
 
 
 

@@ -15,7 +15,7 @@ const navigate = (path) => {
       src="@/assets/SIA_logo.svg"
       alt="SIA Logo"
       @click="navigate('/')"
-      style="max-height: 100px;"
+      style="max-height: 100px; cursor: pointer;"
     />
     <p class="text-white-50 mb-1 fs-6">Inventory Advisory</p>
     <p class="lead mb-0">Der Erste seiner Art.</p>

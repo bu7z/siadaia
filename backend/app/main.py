@@ -263,6 +263,22 @@ def bestand_nach_kategorie(kategorie):
         return jsonify({"data": daten})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+# add inventory
+@app.route('/api/inventar', methods=['POST'])
+@jwt_required()
+def add_drink():
+    try:
+        data = request.get_json()
+
+        required_fields = ['name', 'packungseinheit', 'ml_pro_einheit', 'ek_preis', 'vk_preis', 'kategorie']
+        if not all(field in data for field in required_fields):
+            return jsonify({"success": False, "message": "Unvollständige Angaben"}), 400
+
+        db_connector.add_drink_to_inventar(data)
+
+        return jsonify({"success": True, "message": "Getränk erfolgreich hinzugefügt"})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Serverfehler: {str(e)}"}), 500
 
 
 

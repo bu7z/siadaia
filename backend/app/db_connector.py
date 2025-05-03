@@ -288,6 +288,31 @@ def get_full_inventory_by_category(kategorie):
         }
         for row in rows
     ]
+# add unit
+def add_drink_to_inventar(data):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    query = """
+        INSERT INTO inventar
+        (name, packungseinheit, ml_pro_einheit, ek_preis, vk_preis, kategorie)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """
+
+    values = (
+        data['name'],
+        data['packungseinheit'],
+        data['ml_pro_einheit'],
+        data['ek_preis'],
+        data['vk_preis'],
+        data['kategorie']
+    )
+
+    cur.execute(query, values)
+    conn.commit()
+    cur.close()
+    conn.close()
+
 
 
 

@@ -3,10 +3,17 @@ import Footer from '@/components/Footer.vue'
 import HeroInventory from '@/components/HeroInventory.vue'
 import NavBar from '@/components/NavBar.vue'
 import StockChart from '@/components/StockChart.vue'
+import AddDrinkForm from '@/components/AddDrinkForm.vue'
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const openCategory = ref(null)
 const categorizedDrinks = ref({})
+const showForm = ref({})
+const user = ref(null)
+const loading = ref(true)
 
 const kategorien = [
   'Biere',
@@ -35,30 +42,83 @@ const toggleCategory = async (category) => {
     openCategory.value = category
   }
 }
+
+const toggleForm = (category) => {
+  showForm.value[category] = !showForm.value[category]
+}
+
+onMounted(async () => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    router.push('/')
+    return
+  }
+
+  try {
+    const res = await fetch('/api/verify-token', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    const data = await res.json()
+
+    if (data.success) {
+      user.value = data.user
+      loading.value = false
+    } else {
+      localStorage.removeItem('token')
+      router.push('/')
+    }
+  } catch (err) {
+    console.error('Fehler beim Token-Check:', err)
+    localStorage.removeItem('token')
+    router.push('/')
+  }
+})
 </script>
 
 <template>
   <div class="page-wrapper">
     <HeroInventory />
 
-    <div class="dashboard-container text-white">
+    <div class="dashboard-container text-white" v-if="!loading">
       <NavBar class="sidebar" />
 
       <main class="main-content p-4">
-        <h2 class="text-white mb-4"><i class="bi bi-box-seam"></i> Bestand nach Kategorie</h2>
+        <h2 class="text-white mb-4">
+          <i class="bi bi-box-seam"></i> Bestand nach Kategorie
+        </h2>
 
-        <div v-for="cat in kategorien" :key="cat" class="mb-3">
-          <button
-            class="btn btn-outline-light w-100 text-start"
-            @click="toggleCategory(cat)"
-          >
-            {{ cat }}
-          </button>
+        <div v-for="cat in kategorien" :key="cat" class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <button
+              class="btn btn-outline-light w-100 text-start me-2"
+              @click="toggleCategory(cat)"
+            >
+              {{ cat }}
+            </button>
+            <button
+              class="btn btn-sm btn-success ms-2"
+              title="Getränk hinzufügen"
+              @click="toggleForm(cat)"
+            >
+              <i class="bi bi-plus-lg"></i>
+            </button>
+          </div>
 
+          <!-- Formular zum Hinzufügen -->
+          <AddDrinkForm
+            v-if="showForm[cat]"
+            :category="cat"
+            @success="() => toggleCategory(cat)"
+          />
+
+          <!-- Tabelle + Chart -->
           <div v-if="openCategory === cat" class="mt-3">
             <!-- Tabelle -->
-            <div class="table-responsive mb-4">
-              <table class="table table-dark table-bordered text-center">
+            <div class="overflow-auto mb-4">
+              <table class="table table-dark table-bordered text-center w-100">
                 <thead>
                   <tr>
                     <th>Name</th>
@@ -70,7 +130,7 @@ const toggleCategory = async (category) => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in categorizedDrinks[cat] || []" :key="item.id">
+                  <tr v-for="item in categorizedDrinks[cat] || []" :key="item.name">
                     <td>{{ item.name }}</td>
                     <td>{{ item.packungseinheit }}</td>
                     <td>{{ item.ml_pro_einheit }}</td>
@@ -83,14 +143,16 @@ const toggleCategory = async (category) => {
             </div>
 
             <!-- Chart -->
-            <StockChart
-              v-if="categorizedDrinks[cat]"
-              :category="cat"
-              :data="categorizedDrinks[cat].map(item => ({
-                name: item.name,
-                bestand: item.bestand
-              }))"
-            />
+            <div class="overflow-auto mb-4">
+              <StockChart
+                v-if="categorizedDrinks[cat]"
+                :category="cat"
+                :data="categorizedDrinks[cat].map(item => ({
+                  name: item.name,
+                  bestand: item.bestand
+                }))"
+              />
+            </div>
           </div>
         </div>
       </main>
@@ -106,11 +168,14 @@ const toggleCategory = async (category) => {
   flex-direction: column;
   min-height: 100vh;
   background-color: #121212;
+  overflow-x: hidden;
 }
 
 .dashboard-container {
   display: flex;
   flex: 1;
+  flex-wrap: wrap;
+  width: 100%;
 }
 
 .sidebar {
@@ -121,5 +186,10 @@ const toggleCategory = async (category) => {
 
 .main-content {
   flex: 1;
+  min-width: 0;
+}
+
+.overflow-auto {
+  overflow-x: auto;
 }
 </style>

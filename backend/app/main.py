@@ -253,6 +253,18 @@ def get_inventar():
         return jsonify({"success": True, "inventar": items})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+    
+# table + chart
+@app.route('/api/bestand-kategorie/<kategorie>', methods=['GET'])
+@jwt_required()
+def bestand_nach_kategorie(kategorie):
+    try:
+        daten = db_connector.get_full_inventory_by_category(kategorie)
+        return jsonify({"data": daten})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 
 if __name__ == '__main__':

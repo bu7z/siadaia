@@ -245,6 +245,49 @@ def get_full_inventory():
         }
         for row in rows
     ]
+# table + chart
+def get_full_inventory_by_category(kategorie):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT
+            i.id,
+            i.name,
+            i.packungseinheit,
+            i.ml_pro_einheit,
+            i.ek_preis,
+            i.vk_preis,
+            i.bild,
+            i.kategorie,
+            COALESCE(b.anzahl_flaschen, 0) as bestand
+        FROM inventar i
+        LEFT JOIN (
+            SELECT DISTINCT ON (inventar_id)
+                inventar_id,
+                anzahl_flaschen
+            FROM inventar_bestand
+            ORDER BY inventar_id, datum DESC
+        ) b ON i.id = b.inventar_id
+        WHERE i.kategorie = %s
+        ORDER BY i.name
+    """, (kategorie,))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [
+        {
+            "id": row[0],
+            "name": row[1],
+            "packungseinheit": row[2],
+            "ml_pro_einheit": row[3],
+            "ek_preis": float(row[4]),
+            "vk_preis": float(row[5]),
+            "bild": row[6],
+            "kategorie": row[7],
+            "bestand": row[8]
+        }
+        for row in rows
+    ]
 
 
 

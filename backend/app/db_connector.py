@@ -312,6 +312,20 @@ def add_drink_to_inventar(data):
     conn.commit()
     cur.close()
     conn.close()
+# add stock
+def insert_bestand_entry(inventar_id, anzahl):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO inventar_bestand (inventar_id, anzahl_flaschen) VALUES (%s, %s)",
+        (inventar_id, anzahl)
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
 
 
 

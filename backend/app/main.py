@@ -279,6 +279,19 @@ def add_drink():
         return jsonify({"success": True, "message": "Getränk erfolgreich hinzugefügt"})
     except Exception as e:
         return jsonify({"success": False, "message": f"Serverfehler: {str(e)}"}), 500
+# add stock
+@app.route('/api/bestand', methods=['POST'])
+@jwt_required()
+def add_bestand_entry():
+    try:
+        data = request.get_json()
+        if not data.get("inventar_id") or not data.get("anzahl"):
+            return jsonify({"success": False, "message": "Fehlende Daten"}), 400
+
+        db_connector.insert_bestand_entry(data["inventar_id"], data["anzahl"])
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 

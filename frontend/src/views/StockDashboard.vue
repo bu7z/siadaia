@@ -6,6 +6,8 @@ import StockChart from '@/components/StockChart.vue'
 import AddDrinkForm from '@/components/AddDrinkForm.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import AddStockOverlay from '@/components/AddStockOverlay.vue'
+
 
 const router = useRouter()
 
@@ -76,6 +78,20 @@ onMounted(async () => {
     router.push('/')
   }
 })
+
+const showStockOverlay = ref(false)
+const selectedDrink = ref(null)
+
+const openStockDialog = (drink) => {
+  selectedDrink.value = drink
+  showStockOverlay.value = true
+}
+
+const closeStockDialog = () => {
+  selectedDrink.value = null
+  showStockOverlay.value = false
+}
+
 </script>
 
 <template>
@@ -136,10 +152,17 @@ onMounted(async () => {
                     <td>{{ item.ml_pro_einheit }}</td>
                     <td>{{ item.ek_preis.toFixed(2) }}</td>
                     <td>{{ item.vk_preis.toFixed(2) }}</td>
-                    <td>{{ item.bestand }}</td>
+                    <td>
+                    {{ item.bestand }}
+                    <button class="btn btn-sm btn-outline-light ms-2" @click="openStockDialog(item)">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                  </td>
                   </tr>
                 </tbody>
               </table>
+              
+
             </div>
 
             <!-- Chart -->
@@ -157,6 +180,13 @@ onMounted(async () => {
         </div>
       </main>
     </div>
+    <AddStockOverlay
+      :show="showStockOverlay"
+      :drink="selectedDrink"
+      @close="closeStockDialog"
+      @success="() => toggleCategory(openCategory)"
+    />
+
 
     <Footer />
   </div>

@@ -33,8 +33,8 @@ VALUES
   ('Hirsch Helles', 20, 330, 0.87, 2.50, 'hirsch_helles.png', 'Biere'),
   ('Hirsch Zwuckl', 20, 330, 0.87, 2.50, 'hirsch_zwuckl.png', 'Biere'),
   ('Club Mate', 20, 330, 1.12, 2.50, 'club_mate.png', 'Softdrinks 0,33l'),
-  ('9 Mile Vodka', 6, 1000, 1.32, 2.50, 'mile_vodka.png', 'Spirituosen');
-  ('Coca Cola', 12, 1000, 16.45, 80, 'coca_cola.png', 'Softdrinks 1l');
+  ('9 Mile Vodka', 6, 1000, 16.45, 80, 'mile_vodka.png', 'Spirituosen'),
+  ('Coca Cola', 12, 1000, 1.32, 2.50, 'coca_cola.png', 'Softdrinks 1l');
 
 
 

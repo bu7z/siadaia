@@ -218,6 +218,35 @@ def get_available_drinks():
     return result
 
 
+#########
+# Stock #
+#########
+def get_full_inventory():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id, name, packungseinheit, ml_pro_einheit, ek_preis, vk_preis, bild, kategorie
+        FROM inventar
+        ORDER BY kategorie, name;
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [
+        {
+            "id": row[0],
+            "name": row[1],
+            "packungseinheit": row[2],
+            "ml_pro_einheit": row[3],
+            "ek_preis": float(row[4]),
+            "vk_preis": float(row[5]),
+            "bild": row[6],
+            "kategorie": row[7]
+        }
+        for row in rows
+    ]
+
+
 
 def get_db_connection():
     return psycopg2.connect(

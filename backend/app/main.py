@@ -174,6 +174,7 @@ def get_inventory_bestand():
 ##################
 # Drink Advisory #
 ##################
+# geüfhrte drinkberatung
 @app.route('/api/beratung', methods=['POST'])
 def beratung():
     data = request.get_json()
@@ -189,7 +190,7 @@ def beratung():
         "drink": response_msg
     })
 
-
+# individuelle drinkprüfung
 @app.route('/api/check', methods=['POST'])
 def check():
     data = request.get_json()
@@ -209,6 +210,7 @@ def check():
         "drink": inquiry_check
     })
 
+# tinder getränke 
 @app.route('/api/examples', methods=['GET'])
 def create():
     drinks_available = db_connector.get_available_drinks()
@@ -237,6 +239,20 @@ def camera_feed_aud():
 def get_person_count():
     from object_detector import person_count
     return jsonify({"count": person_count})
+
+
+
+#########
+# Stock #
+#########
+@app.route('/api/inventar', methods=['GET'])
+@jwt_required()
+def get_inventar():
+    try:
+        items = db_connector.get_full_inventory()
+        return jsonify({"success": True, "inventar": items})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 if __name__ == '__main__':

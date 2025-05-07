@@ -88,8 +88,11 @@ const updateChart = () => {
   })
 
   filtered.forEach(entry => {
+    if (!entry.produktname || typeof entry.anzahl !== 'number') return
+
     const date = entry.datum.split('T')[0]
     const key = entry.produktname
+
     if (!grouped[key]) grouped[key] = {}
     grouped[key][date] = entry.anzahl
   })
@@ -123,7 +126,7 @@ onMounted(async () => {
       'Authorization': `Bearer ${token}`
     }
   })
-    const json = await res.json()
+  const json = await res.json()
   rawData.value = json.inventar
 
   const allDates = rawData.value.map(e => e.datum?.split('T')[0]).sort()

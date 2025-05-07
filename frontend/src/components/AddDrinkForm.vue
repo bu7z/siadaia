@@ -14,6 +14,7 @@ const newDrink = ref({
   name: '',
   packungseinheit: null,
   ml_pro_einheit: null,
+  ml_pro_vk_einheit: null,
   ek_preis: null,
   vk_preis: null
 })
@@ -25,6 +26,7 @@ const resetForm = () => {
     name: '',
     packungseinheit: null,
     ml_pro_einheit: null,
+    ml_pro_vk_einheit: null,
     ek_preis: null,
     vk_preis: null
   }
@@ -68,7 +70,7 @@ const submitDrink = async () => {
   <div class="card card-body bg-dark text-white mb-3 border-secondary">
     <form @submit.prevent="submitDrink">
       <div class="row g-3">
-        <div class="col-md-4">
+        <div class="col-md-3">
           <input
             v-model="newDrink.name"
             type="text"
@@ -91,17 +93,26 @@ const submitDrink = async () => {
             v-model.number="newDrink.ml_pro_einheit"
             type="number"
             class="form-control bg-dark text-white border-secondary"
-            placeholder="ML"
+            placeholder="ML (Einheit)"
             required
           />
         </div>
         <div class="col-md-2">
           <input
+            v-model.number="newDrink.ml_pro_vk_einheit"
+            type="number"
+            class="form-control bg-dark text-white border-secondary"
+            placeholder="ML (VK-Einheit)"
+            required
+          />
+        </div>
+        <div class="col-md-1">
+          <input
             v-model.number="newDrink.ek_preis"
             type="number"
             step="0.01"
             class="form-control bg-dark text-white border-secondary"
-            placeholder="EK (€)"
+            placeholder="EK"
             required
           />
         </div>
@@ -111,7 +122,7 @@ const submitDrink = async () => {
             type="number"
             step="0.01"
             class="form-control bg-dark text-white border-secondary"
-            placeholder="VK (€)"
+            placeholder="VK"
             required
           />
         </div>
@@ -125,6 +136,7 @@ const submitDrink = async () => {
     </form>
   </div>
 </template>
+
 <style scoped>
 ::v-deep input::placeholder {
   color: rgba(255, 255, 255, 0.6);

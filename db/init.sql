@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS inventar (
     erstellt_am TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO inventar (name, packungseinheit, ml_pro_einheit, ek_preis, vk_preis, bild, kategorie)
+INSERT INTO inventar (name, packungseinheit, ml_pro_einheit, ml_pro_vk_einheit, ek_preis, vk_preis, bild, kategorie)
 VALUES
   ('Hirsch Helles', 20, 330, 330, 0.87, 2.50, 'hirsch_helles.png', 'Biere'),
   ('Hirsch Zwuckl', 20, 330,330, 0.87, 2.50, 'hirsch_zwuckl.png', 'Biere'),

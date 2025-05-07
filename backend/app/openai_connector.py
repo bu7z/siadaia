@@ -11,10 +11,9 @@ client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 ##################
 # Drink Advisory #
 ##################
-# Drink example on vibe and preferences #
 def get_drink_recommendation(vibe, preferences, drinks):
     drink_list = "\n".join([
-        f"- {d['name']} ({d['ml_pro_einheit']}ml, {d['vk_preis']:.2f}€)" for d in drinks
+        f"- {d['name']} ({d['ml_pro_vk_einheit']}ml, {d['vk_preis']:.2f}€)" for d in drinks
     ])
 
     messages = [
@@ -24,7 +23,8 @@ def get_drink_recommendation(vibe, preferences, drinks):
                 "Du bist ein Barkeeper-Experte und hilfst Nutzern, passende Getränke auszuwählen. "
                 "Berücksichtige dabei die Stimmung, die Präferenzen und eine Liste an vorhandenen Drinks mit Preis. "
                 "Gebe die Getränke-Zutaten in ml an und den dazugehörigen Preis. Achte darauf, nur Getränke vorzuschlagen, "
-                "die mit den gegebenen Zutaten zubereitet werden können."
+                "die mit den gegebenen Zutaten zubereitet werden können. Mische bitte keinen Flaschen (330ml) außer wenn du der Überzeugung bist das es richtig gut passt"
+                "Shots sind 25ml und LongDrinks bitte mit 50ml angeben, bei starken Getränken, können es auch mal 57ml, also 3 Einheiten sein."
             )
         },
         {
@@ -47,29 +47,29 @@ def get_drink_recommendation(vibe, preferences, drinks):
 
     return response.choices[0].message.content
 
-# Freetext Drink prove #
+
 def validate_drink_inquiry(inquiry, drinks):
     drink_list = "\n".join([
-        f"- {d['name']} ({d['ml_pro_einheit']}ml, {d['vk_preis']:.2f}€)" for d in drinks
+        f"- {d['name']} ({d['ml_pro_vk_einheit']}ml, {d['vk_preis']:.2f}€)" for d in drinks
     ])
 
     messages = [
         {
             "role": "system",
             "content": (
-                "Du bist ein Barkeeper-Experte und hilfst Nutzern, passende Getränke auszuwählen."
+                "Du bist ein Barkeeper-Experte und hilfst Nutzern, passende Getränke auszuwählen. "
                 "Gebe die Getränke-Zutaten in ml an und den dazugehörigen Preis. Achte darauf, nur Getränke vorzuschlagen, "
-                "die mit den gegebenen Zutaten zubereitet werden können."
+                "die mit den gegebenen Zutaten zubereitet werden können.Mische bitte keinen Flaschen (330ml) außer wenn du der Überzeugung bist das es richtig gut passt"
+                "Shots sind 25ml und LongDrinks bitte mit 50ml angeben, bei starken Getränken, können es auch mal 57ml, also 3 Einheiten sein."
             )
         },
         {
             "role": "user",
             "content": (
                 f"Hier ist die Liste an verfügbaren Drinks der Bar:\n{drink_list}\n"
-                f"Folgendes getränk möchte ich zubereitet bekommen:\n{inquiry}\n"
-                "Kannst du mir sagen ob das möglich ist und welche zutaten du dafür verwenden würdest, gebe mir ml und Preis an."
-                "Falls keine Zubereitung möglich ist dann gebe mir doch bitte eine Alternative anhand der gegebenen Liste."
-
+                f"Folgendes Getränk möchte ich zubereitet bekommen:\n{inquiry}\n"
+                "Kannst du mir sagen, ob das möglich ist und welche Zutaten du dafür verwenden würdest? Gib mir ml und Preis an. "
+                "Falls keine Zubereitung möglich ist, dann gib mir bitte eine Alternative anhand der gegebenen Liste."
             )
         }
     ]
@@ -84,10 +84,9 @@ def validate_drink_inquiry(inquiry, drinks):
     return response.choices[0].message.content
 
 
-# Tinder Swipe Drinks #
 def create_example_drinks(drinks):
     drink_list = "\n".join([
-        f"- {d['name']} ({d['ml_pro_einheit']}ml, {d['vk_preis']:.2f}€)" for d in drinks
+        f"- {d['name']} ({d['ml_pro_vk_einheit']}ml, {d['vk_preis']:.2f}€)" for d in drinks
     ])
 
     messages = [
@@ -104,9 +103,10 @@ def create_example_drinks(drinks):
                 "  ...\n"
                 "]\n\n"
                 "Wähle realistische Namen und ordne jedem Drink ein ungefähres Alkohollevel zu. "
-                "Der Preis ist errechnet durch den Verkaufspreis in Euro, basierend auf den Zutaten. welche dir gegeben werden"
-                "Wähle bitte nur getränkemischung welche du als schmackhaft bzw. sinnvoll erachten würdest."
-                "Achte immer darauf das deine antwort ein optimal zu parsendes JSON Objekt ist!"
+                "Der Preis ist errechnet durch den Verkaufspreis in Euro, basierend auf den Zutaten. "
+                "Wähle bitte nur Getränkemischungen, die du als schmackhaft bzw. sinnvoll erachtest. "
+                "Achte immer darauf, dass deine Antwort ein optimal zu parsenden JSON-Block darstellt! Mische bitte keinen Flaschen (330ml) außer wenn du der Überzeugung bist das es richtig gut passt"
+                "Shots sind 25ml und LongDrinks bitte mit 50ml angeben, bei starken Getränken, können es auch mal 57ml, also 3 Einheiten sein."
             )
         },
         {
@@ -128,7 +128,6 @@ def create_example_drinks(drinks):
     raw_text = response.choices[0].message.content.strip()
 
     try:
-        # Parsen von GPT-Text zu Python-Objekt
         drinks_json = json.loads(raw_text)
     except json.JSONDecodeError as e:
         raise ValueError(f"❌ Fehler beim Parsen des GPT-Outputs: {e}\nGPT-Antwort:\n{raw_text}")

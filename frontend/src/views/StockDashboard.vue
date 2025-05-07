@@ -4,10 +4,9 @@ import HeroInventory from '@/components/HeroInventory.vue'
 import NavBar from '@/components/NavBar.vue'
 import StockChart from '@/components/StockChart.vue'
 import AddDrinkForm from '@/components/AddDrinkForm.vue'
+import AddStockOverlay from '@/components/AddStockOverlay.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import AddStockOverlay from '@/components/AddStockOverlay.vue'
-
 
 const router = useRouter()
 
@@ -24,12 +23,8 @@ const kategorien = [
   'Spirituosen'
 ]
 
-const toggleCategory = async (category) => {
-  if (openCategory.value === category) {
-    openCategory.value = null
-    return
-  }
-
+// Nur Daten aktualisieren, ohne die Kategorie zu schließen
+const reloadCategory = async (category) => {
   const token = localStorage.getItem('token')
   const res = await fetch(`/api/bestand-kategorie/${encodeURIComponent(category)}`, {
     headers: { Authorization: `Bearer ${token}` }
@@ -38,11 +33,19 @@ const toggleCategory = async (category) => {
   const data = await res.json()
   if (data?.data) {
     categorizedDrinks.value[category] = data.data
-    openCategory.value = category
   } else {
     categorizedDrinks.value[category] = []
-    openCategory.value = category
   }
+}
+
+const toggleCategory = async (category) => {
+  if (openCategory.value === category) {
+    openCategory.value = null
+    return
+  }
+
+  await reloadCategory(category)
+  openCategory.value = category
 }
 
 const toggleForm = (category) => {
@@ -91,7 +94,6 @@ const closeStockDialog = () => {
   selectedDrink.value = null
   showStockOverlay.value = false
 }
-
 </script>
 
 <template>
@@ -123,14 +125,12 @@ const closeStockDialog = () => {
             </button>
           </div>
 
-          <!-- Formular zum Hinzufügen -->
           <AddDrinkForm
             v-if="showForm[cat]"
             :category="cat"
-            @success="() => toggleCategory(cat)"
+            @success="() => reloadCategory(cat)"
           />
 
-          <!-- Tabelle + Chart -->
           <div v-if="openCategory === cat" class="mt-3">
             <!-- Tabelle -->
             <div class="overflow-auto mb-4">
@@ -140,29 +140,29 @@ const closeStockDialog = () => {
                     <th>Name</th>
                     <th>Packungseinheit</th>
                     <th>ML pro Einheit</th>
+                    <th>ML pro VK-Einheit</th>
                     <th>EK Preis (€)</th>
                     <th>VK Preis (€)</th>
                     <th>Bestand</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in categorizedDrinks[cat] || []" :key="item.name">
+                  <tr v-for="item in categorizedDrinks[cat] || []" :key="item.id">
                     <td>{{ item.name }}</td>
                     <td>{{ item.packungseinheit }}</td>
                     <td>{{ item.ml_pro_einheit }}</td>
+                    <td>{{ item.ml_pro_vk_einheit }}</td>
                     <td>{{ item.ek_preis.toFixed(2) }}</td>
                     <td>{{ item.vk_preis.toFixed(2) }}</td>
                     <td>
-                    {{ item.bestand }}
-                    <button class="btn btn-sm btn-outline-light ms-2" @click="openStockDialog(item)">
-                      <i class="bi bi-pencil-square"></i>
-                    </button>
-                  </td>
+                      {{ item.bestand }}
+                      <button class="btn btn-sm btn-outline-light ms-2" @click="openStockDialog(item)">
+                        <i class="bi bi-pencil-square"></i>
+                      </button>
+                    </td>
                   </tr>
                 </tbody>
               </table>
-              
-
             </div>
 
             <!-- Chart -->
@@ -180,13 +180,13 @@ const closeStockDialog = () => {
         </div>
       </main>
     </div>
+
     <AddStockOverlay
       :show="showStockOverlay"
       :drink="selectedDrink"
       @close="closeStockDialog"
-      @success="() => toggleCategory(openCategory)"
+      @success="() => reloadCategory(openCategory)"
     />
-
 
     <Footer />
   </div>

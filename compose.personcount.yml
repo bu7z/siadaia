@@ -11,4 +11,5 @@ services:
       - .env
     volumes:
       - ./snapshots:/app/snapshots  # optional für Debugging
+      - /etc/localtime:/etc/localtime:ro
     entrypoint: ["cron", "-f"]

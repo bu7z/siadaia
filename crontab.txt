@@ -1,2 +1,5 @@
-*/10 * * * * /usr/local/bin/python /app/person_counter.py >> /app/log.txt 2>&1
+# Di & Do abends: 18:00–23:59 Uhr
+*/10 18-23 * * 2,4 /usr/local/bin/python /app/person_counter.py >> /app/log.txt 2>&1
 
+# Mi & Fr frühmorgens: 00:00–04:59 Uhr (gehört noch zu Di & Do Nacht)
+*/10 0-4   * * 3,5 /usr/local/bin/python /app/person_counter.py >> /app/log.txt 2>&1

@@ -9,7 +9,8 @@ COPY person_counter.py .
 COPY .env .
 COPY yolov8n.pt .
 
-RUN apt-get update && apt-get install -y cron
+# Add OpenCV dependency here
+RUN apt-get update && apt-get install -y cron libgl1
 
 COPY crontab.txt /etc/cron.d/person-cron
 RUN chmod 0644 /etc/cron.d/person-cron && crontab /etc/cron.d/person-cron

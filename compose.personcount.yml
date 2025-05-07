@@ -11,6 +11,4 @@ services:
       - .env
     volumes:
       - ./snapshots:/app/snapshots  # optional für Debugging
-    depends_on:
-      - postgres
     entrypoint: ["cron", "-f"]

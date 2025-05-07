@@ -1,1 +1,2 @@
 */10 * * * * /usr/local/bin/python /app/person_counter.py >> /app/log.txt 2>&1
+

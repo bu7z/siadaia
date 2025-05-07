@@ -24,8 +24,11 @@ def get_drink_recommendation(vibe, preferences, drinks):
                 "Berücksichtige dabei die Stimmung, die Präferenzen und eine Liste an vorhandenen Drinks mit Preis. "
                 "Gebe die Getränke-Zutaten in ml an und den dazugehörigen Preis. Achte darauf, nur Getränke vorzuschlagen, "
                 "die mit den gegebenen Zutaten zubereitet werden können. Mische bitte keinen Flaschen (330ml) außer wenn du der Überzeugung bist das es richtig gut passt"
-                "Shots sind 25ml und LongDrinks bitte mit 50ml angeben, bei starken Getränken, können es auch mal 57ml, also 3 Einheiten sein."
+                "Shots sind 25ml und LongDrinks bitte mit 50ml angeben (2 Einheiten), das heißt alle Mischgetränke haben mind. 50ml Alkohol wie 9 Mile o. ä. bei starken Getränken, können es auch mal 75ml, also 3 Einheiten sein."
+                "Als Beispiel Coca Cola 200ml (0.50€) + Captain Morgan 50ml (4€) = Captain Cola 4.50€" "Als Beispiel Coca Cola 200ml (0.50€) + Captain Morgan 50ml (4€) = Captain Cola 4.50€"
+                "Halte die Getränkemenge immer ungefähr bei 330ml, gehe nicht höher."
             )
+
         },
         {
             "role": "user",
@@ -60,7 +63,8 @@ def validate_drink_inquiry(inquiry, drinks):
                 "Du bist ein Barkeeper-Experte und hilfst Nutzern, passende Getränke auszuwählen. "
                 "Gebe die Getränke-Zutaten in ml an und den dazugehörigen Preis. Achte darauf, nur Getränke vorzuschlagen, "
                 "die mit den gegebenen Zutaten zubereitet werden können.Mische bitte keinen Flaschen (330ml) außer wenn du der Überzeugung bist das es richtig gut passt"
-                "Shots sind 25ml und LongDrinks bitte mit 50ml angeben, bei starken Getränken, können es auch mal 57ml, also 3 Einheiten sein."
+                "Shots sind 25ml und LongDrinks bitte mit 50ml (2 Einheiten), das heißt alle Mischgetränke haben mind. 50ml Alkohol wie 9 Mile o. ä. angeben, bei starken Getränken, können es auch mal 75ml, also 3 Einheiten sein."
+                "Als Beispiel Coca Cola 200ml (0.50€) + Captain Morgan 50ml (4€) = Captain Cola 4.50€"
             )
         },
         {
@@ -106,7 +110,9 @@ def create_example_drinks(drinks):
                 "Der Preis ist errechnet durch den Verkaufspreis in Euro, basierend auf den Zutaten. "
                 "Wähle bitte nur Getränkemischungen, die du als schmackhaft bzw. sinnvoll erachtest. "
                 "Achte immer darauf, dass deine Antwort ein optimal zu parsenden JSON-Block darstellt! Mische bitte keinen Flaschen (330ml) außer wenn du der Überzeugung bist das es richtig gut passt"
-                "Shots sind 25ml und LongDrinks bitte mit 50ml angeben, bei starken Getränken, können es auch mal 57ml, also 3 Einheiten sein."
+                "Shots sind 25ml und LongDrinks bitte mit 50ml (2 Einheiten) angeben, das heißt alle Mischgetränke haben mind. 50ml Alkohol wie 9 Mile o. ä. bei starken Getränken, können es auch mal 75ml, also 3 Einheiten sein."
+                "Als Beispiel Coca Cola 200ml (0.50€) + Captain Morgan 50ml (4€) = Captain Cola 4.50€"
+                "Halte die Getränkemenge immer ungefähr bei 330ml, gehe nicht höher."
             )
         },
         {

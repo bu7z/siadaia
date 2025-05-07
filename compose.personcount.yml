@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+
+  person_counter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: person_counter
+    env_file:
+      - .env
+    volumes:
+      - ./snapshots:/app/snapshots  # optional für Debugging
+    depends_on:
+      - postgres
+    entrypoint: ["cron", "-f"]

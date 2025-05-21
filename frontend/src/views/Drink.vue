@@ -18,6 +18,7 @@ const showResponseModal = ref(false)
 const loadingOverlay = ref(false)
 const showOrderModal = ref(false)
 const selectedDrink = ref(null)
+const showSuccessToast = ref(false)
 
 const vibes = ['Edle Stimmung', 'Entspannt', 'Brauche Energie', 'Wenig Alkohol', 'Überrasch mich', 'Alkoholfrei']
 const prefOptions = ['Süß', 'Bitter', 'Fruchtig', 'Stark', 'Würzig', 'Saisonal']
@@ -46,7 +47,10 @@ const onBestellungAbgeschlossen = () => {
   showOrderModal.value = false
   selectedDrink.value = null
   parsedDrink.value = null
-  alert('✅ Bestellung erfolgreich!')
+  showSuccessToast.value = true
+  setTimeout(() => {
+    showSuccessToast.value = false
+  }, 3500)
 }
 
 const parseResponse = (data) => {
@@ -71,7 +75,6 @@ const submitAdvisor = async () => {
     const data = await res.json()
     responseText.value = data.drink
     parseResponse(data)
-    console.log(data)
     showResponseModal.value = true
   } catch (err) {
     console.error(err)
@@ -103,7 +106,6 @@ const validateDrinkName = async () => {
     const data = await res.json()
     responseText.value = data.drink
     parseResponse(data)
-    console.log(data)
     showResponseModal.value = true
   } catch (err) {
     console.error(err)
@@ -125,6 +127,7 @@ const validateDrinkName = async () => {
     </div>
   </div>
 
+  <!-- Drink Info Modal -->
   <div v-if="showResponseModal" class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.6);" @click.self="showResponseModal = false">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content bg-dark text-white border-0 rounded-4 shadow-lg p-4">
@@ -150,6 +153,7 @@ const validateDrinkName = async () => {
     </div>
   </div>
 
+  <!-- Bestellung Modal -->
   <OrderModal
     v-if="selectedDrink"
     :show="showOrderModal"
@@ -157,6 +161,18 @@ const validateDrinkName = async () => {
     @close="showOrderModal = false"
     @bestellt="onBestellungAbgeschlossen"
   />
+
+  <!-- Bestellung Erfolgreich Toast -->
+  <transition name="fade">
+    <div
+      v-if="showSuccessToast"
+      class="toast-success position-fixed bottom-0 end-0 m-4 p-3 bg-success text-white rounded shadow-lg d-flex align-items-center gap-3"
+      style="z-index: 3000; min-width: 220px;"
+    >
+      <span class="fs-4">✅</span>
+      <span>Bestellung erfolgreich!</span>
+    </div>
+  </transition>
 
   <HeroDrink />
   <div class="container py-5">
@@ -234,7 +250,6 @@ const validateDrinkName = async () => {
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -260,10 +275,12 @@ const validateDrinkName = async () => {
   justify-content: center;
   align-items: center;
 }
+
 .modal-content p {
   font-size: 1.1rem;
   white-space: pre-wrap;
 }
+
 .flip-card {
   perspective: 1000px;
   height: 250px;
@@ -302,20 +319,12 @@ const validateDrinkName = async () => {
   transform: scale(1.03);
 }
 
-.loading-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 1050;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
-.modal-content p {
-  font-size: 1.1rem;
-  white-space: pre-wrap;
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

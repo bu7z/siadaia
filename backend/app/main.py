@@ -327,6 +327,7 @@ def bestellung_absenden():
         return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route('/api/bestellungen', methods=['GET'])
+@jwt_required()
 def get_bestellungen():
     try:
         return jsonify(db_connector.get_orders(zubereitet=False))
@@ -335,21 +336,31 @@ def get_bestellungen():
         return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route('/api/bestellungen/alle', methods=['GET'])
+@jwt_required()
 def get_alle_bestellungen():
     try:
         return jsonify(db_connector.get_all_orders())
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
-    
+
 @app.route('/api/bestellungen/<int:bestellung_id>/zubereitet', methods=['PATCH'])
-#@jwt_required()
+@jwt_required()
 def markiere_zubereitet(bestellung_id):
     try:
         db_connector.mark_as_prepared(bestellung_id)
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+    
+@app.route('/api/bestellungen/vergangene', methods=['GET'])
+@jwt_required()
+def get_vergangene_bestellungen():
+    try:
+        return jsonify(db_connector.get_orders(zubereitet=True))
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 
 

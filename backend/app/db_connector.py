@@ -247,7 +247,7 @@ def get_orders(zubereitet=False):
             cur.execute("""
                 SELECT * FROM bestellungen
                 WHERE zubereitet = %s
-                ORDER BY bestellt_am DESC
+                ORDER BY bestellt_am ASC
             """, (bool(zubereitet),))
             return cur.fetchall()
 

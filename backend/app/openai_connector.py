@@ -21,6 +21,8 @@ def get_drink_recommendation(vibe, preferences, drinks):
             "role": "system",
             "content": (
                 "Du bist ein Barkeeper-Experte und hilfst Nutzern, passende Getränke auszuwählen. "
+                f"Die Bar verfügt nur über folgende Zutaten:\n{drink_list}\n"
+                "Bitte kein festen Nahrungsmittel wie Zimt, Zitrone, Minze, oder änhliches in die Getränkevorschläge mit einbeziehen."
                 "Berücksichtige Stimmung, Präferenzen und vorhandene Zutaten. Gib Zutaten in ml und Preis an. "
                 "Verwende nur kombinierbare Zutaten. "
                 "Shots = 25ml, LongDrinks = 50ml (2 Einheiten), stark = 75ml (3 Einheiten). "
@@ -59,10 +61,15 @@ def validate_drink_inquiry(inquiry, drinks):
             "role": "system",
             "content": (
                 "Gib die Antwort ausschließlich als JSON zurück. Beginne direkt mit { und gib keine Erklärung oder sonstigen Text. "
+                f"Die Bar verfügt nur über folgende Zutaten:\n{drink_list}\n"
+                "Bitte kein festen Nahrungsmittel wie Zimt, Zitrone, Minze, oder änhliches in die Getränkevorschläge mit einbeziehen."
                 "Wenn das angefragte Getränk nicht möglich ist, gib eine passende Alternative – aber immer rein als JSON im Format: "
                 "{\"name\": \"...\", \"zutaten\": [\"...\"], \"preis\": \"...\", \"Empfehlungstext\": \"...\"}"
                 "Format: {\"name\": \"...\", \"zutaten\": [\"...\"], \"preis\": \"...\", \"Empfehlungstext\": \"...\"} "
                 "Falls nicht möglich, mache eine realistische Alternative mit diesem Format."
+                "Verwende nur gut kombinierbare Zutaten. "
+                "Shots = 25ml, LongDrinks = 50ml (2 Einheiten), stark = 75ml (3 Einheiten). "
+                "Keine ganzen Flaschen (330ml), außer es passt wirklich gut. bei Zutaten imm die ml Anzahl angeben!! Wirklich immer das ist sehr wicchtig sonst stürzt alles ab!!!"
             )
         },
         {

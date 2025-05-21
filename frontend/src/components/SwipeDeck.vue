@@ -11,6 +11,8 @@ const loading = ref(true)
 const error = ref('')
 const showOrderModal = ref(false)
 const selectedDrink = ref(null)
+const showSuccessToast = ref(false)
+
 
 const likeDrink = () => {
   cardClass.value = 'swipe-right'
@@ -69,7 +71,10 @@ const bestelleDrink = (drink) => {
 const onBestellungAbgeschlossen = () => {
   showOrderModal.value = false
   selectedDrink.value = null
-  alert('✅ Bestellung erfolgreich!')
+  showSuccessToast.value = true
+  setTimeout(() => {
+    showSuccessToast.value = false
+  }, 3500)
 }
 
 onMounted(fetchDrinks)
@@ -126,6 +131,17 @@ onMounted(fetchDrinks)
       </ul>
       <button class="btn btn-outline-primary mt-3" @click="reset">🔁 Nochmal laden!</button>
     </div>
+    <!-- Toast: Bestellung erfolgreich -->
+    <transition name="fade">
+      <div
+        v-if="showSuccessToast"
+        class="toast-success position-fixed bottom-0 end-0 m-4 p-3 bg-success text-white rounded shadow-lg d-flex align-items-center gap-3"
+        style="z-index: 3000; min-width: 220px;"
+      >
+        <span class="fs-4">✅</span>
+        <span>Bestellung erfolgreich!</span>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -172,4 +188,13 @@ onMounted(fetchDrinks)
     transform: translateY(-12px);
   }
 }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
 </style>

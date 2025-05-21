@@ -1,4 +1,5 @@
 <script setup>
+import { useRouter } from 'vue-router'
 import { onMounted, ref, watch } from 'vue'
 import { Bar, Line } from 'vue-chartjs'
 import {
@@ -19,6 +20,7 @@ import Footer from '@/components/Footer.vue'
 // ChartJS-Setup
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement, LineElement)
 
+const router = useRouter()
 const bestellungen = ref([])
 const vergangeneBestellungen = ref([])
 const umsatz = ref(0)
@@ -30,6 +32,9 @@ const showHistorie = ref(false)
 const showModal = ref(false)
 const selectedBestellungId = ref(null)
 const token = localStorage.getItem('token')
+const user = ref(null)
+const loading = ref(true)
+
 
 
 let intervalRef = null
@@ -80,7 +85,34 @@ const ladeStatistik = async () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    router.push('/')
+    return
+  }
+
+  try {
+    const res = await fetch('/api/verify-token', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    const data = await res.json()
+
+    if (data.success) {
+      user.value = data.user
+      loading.value = false
+    } else {
+      localStorage.removeItem('token')
+      router.push('/')
+    }
+  } catch (err) {
+    console.error('Fehler beim Token-Check:', err)
+    localStorage.removeItem('token')
+    router.push('/')
+  }
   ladeBestellungen()
   ladeStatistik()
   intervalRef = setInterval(() => {

@@ -297,6 +297,60 @@ def add_bestand_entry():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
+######################
+# Bestellungen/Order #
+######################
+@app.route('/api/bestellungen', methods=['POST'])
+def bestellung_absenden():
+    try:
+        data = request.get_json()
+        print("RAW BESTELLUNG:", data)
+
+        # Validierung
+        required = ['drink_name', 'zutaten', 'preis', 'kundenname']
+        for field in required:
+            if field not in data:
+                return jsonify({"success": False, "message": f"Feld fehlt: {field}"}), 400
+
+        if not isinstance(data['zutaten'], list):
+            return jsonify({"success": False, "message": "Zutaten müssen ein Array sein"}), 400
+
+        db_connector.save_order(
+            data['drink_name'],
+            data['zutaten'],
+            data['preis'],
+            data['kundenname']
+        )
+        return jsonify({"success": True})
+    except Exception as e:
+        print("❌ Fehler bei Bestellung:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route('/api/bestellungen', methods=['GET'])
+def get_bestellungen():
+    try:
+        return jsonify(db_connector.get_orders(zubereitet=False))
+    except Exception as e:
+        print("Fehler beim Laden der Bestellungen:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route('/api/bestellungen/alle', methods=['GET'])
+def get_alle_bestellungen():
+    try:
+        return jsonify(db_connector.get_all_orders())
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+    
+@app.route('/api/bestellungen/<int:bestellung_id>/zubereitet', methods=['PATCH'])
+#@jwt_required()
+def markiere_zubereitet(bestellung_id):
+    try:
+        db_connector.mark_as_prepared(bestellung_id)
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 
 if __name__ == '__main__':

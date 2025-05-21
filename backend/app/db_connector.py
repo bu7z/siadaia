@@ -1,6 +1,9 @@
 import os
 import psycopg2
 from flask import jsonify
+import json
+from psycopg2.extras import RealDictCursor
+
 
 # -------------------------
 # DB-Verbindung
@@ -221,3 +224,51 @@ def inventory_test():
         ])
     except Exception as e:
         return jsonify({"error": str(e)})
+
+
+##############
+# Bestellung #
+##############
+# Bestellung speichern
+def save_order(name, zutaten, preis, kundenname):
+    conn = get_db_connection()
+    with conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO bestellungen (drink_name, zutaten, preis, kundenname)
+                VALUES (%s, %s, %s, %s)
+            """, (name, json.dumps(zutaten), preis, kundenname))
+
+# Bestellungen abrufen (zubereitet = False → nur offene)
+def get_orders(zubereitet=False):
+    conn = get_db_connection()
+    with conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                SELECT * FROM bestellungen
+                WHERE zubereitet = %s
+                ORDER BY bestellt_am DESC
+            """, (bool(zubereitet),))
+            return cur.fetchall()
+
+
+# Bestellung als zubereitet markieren
+def mark_as_prepared(bestellung_id):
+    conn = get_db_connection()
+    with conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE bestellungen
+                SET zubereitet = TRUE
+                WHERE id = %s
+            """, (bestellung_id,))
+# alle 
+def get_all_orders():
+    conn = get_db_connection()
+    with conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                SELECT * FROM bestellungen
+                ORDER BY bestellt_am DESC
+            """)
+            return cur.fetchall()

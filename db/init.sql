@@ -1,3 +1,14 @@
+CREATE TABLE IF NOT EXISTS bestellungen (
+    id SERIAL PRIMARY KEY,
+    drink_name TEXT NOT NULL,
+    zutaten JSONB NOT NULL,
+    preis NUMERIC(10, 2) NOT NULL,
+    kundenname VARCHAR(100) NOT NULL,
+    bestellt_am TIMESTAMPTZ DEFAULT NOW(),
+    zubereitet BOOLEAN DEFAULT FALSE
+);
+
+
 CREATE TABLE IF NOT EXISTS benutzer (
     id SERIAL PRIMARY KEY,
     benutzername VARCHAR(50) UNIQUE NOT NULL,

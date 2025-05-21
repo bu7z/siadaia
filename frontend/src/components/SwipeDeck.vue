@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import OrderModal from '@/components/OrderModal.vue'
 
 const drinks = ref([])
 const liked = ref([])
@@ -8,6 +9,8 @@ const currentIndex = ref(0)
 const cardClass = ref('')
 const loading = ref(true)
 const error = ref('')
+const showOrderModal = ref(false)
+const selectedDrink = ref(null)
 
 const likeDrink = () => {
   cardClass.value = 'swipe-right'
@@ -57,23 +60,40 @@ const fetchDrinks = async () => {
   }
 }
 
+const bestelleDrink = (drink) => {
+  console.log(drink)
+  selectedDrink.value = drink
+  showOrderModal.value = true
+}
+
+const onBestellungAbgeschlossen = () => {
+  showOrderModal.value = false
+  selectedDrink.value = null
+  alert('✅ Bestellung erfolgreich!')
+}
+
 onMounted(fetchDrinks)
 </script>
 
 <template>
   <div class="swipe-deck-wrapper text-center">
-    <!-- Ladeanimation -->
+    <OrderModal
+      v-if="selectedDrink"
+      :show="showOrderModal"
+      :drink="selectedDrink"
+      @close="showOrderModal = false"
+      @bestellt="onBestellungAbgeschlossen"
+    />
+
     <div v-if="loading" class="my-5 loading-container">
       <div class="cocktail-loader mb-3"></div>
       <p class="fs-5 fw-semibold text-dark">Lade Getränke...</p>
     </div>
 
-    <!-- Fehler -->
     <div v-else-if="error" class="text-danger">
       <p>{{ error }}</p>
     </div>
 
-    <!-- Drink-Karte -->
     <div
       v-else-if="currentIndex < drinks.length"
       :key="currentIndex"
@@ -96,11 +116,13 @@ onMounted(fetchDrinks)
       </div>
     </div>
 
-    <!-- Ergebnisse -->
     <div v-else class="result text-center p-4">
       <h5>🎯 Deine Favoriten:</h5>
       <ul class="list-unstyled mt-3">
-        <li v-for="drink in liked" :key="drink.name">🍹 {{ drink.name }} – {{ drink.preis }}</li>
+        <li v-for="drink in liked" :key="drink.name">
+          🍹 {{ drink.name }} – {{ drink.preis }}
+          <button class="btn btn-sm btn-outline-primary ms-2" @click="bestelleDrink(drink)">Jetzt bestellen</button>
+        </li>
       </ul>
       <button class="btn btn-outline-primary mt-3" @click="reset">🔁 Nochmal laden!</button>
     </div>
@@ -112,7 +134,6 @@ onMounted(fetchDrinks)
   max-width: 320px;
   margin: 0 auto;
 }
-
 .card {
   background-color: #1e293b;
   border: 1px solid #334155;
@@ -121,25 +142,19 @@ onMounted(fetchDrinks)
   transition: transform 0.4s ease-out, opacity 0.4s ease-out;
   min-height: 280px;
 }
-
-/* Swipe Animation */
 .swipe-right {
   transform: translateX(25vw) rotate(20deg);
   opacity: 0;
 }
-
 .swipe-left {
   transform: translateX(-25vw) rotate(-20deg);
   opacity: 0;
 }
-
-/* Ladeanimation */
 .loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
 .cocktail-loader {
   width: 60px;
   height: 60px;
@@ -149,7 +164,6 @@ onMounted(fetchDrinks)
   animation: bounce 1s infinite ease-in-out;
   box-shadow: 0 0 15px rgba(199, 56, 102, 0.3);
 }
-
 @keyframes bounce {
   0%, 100% {
     transform: translateY(0);

@@ -4,22 +4,24 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Systemabhängigkeiten installieren (u.a. für OpenCV!)
+# Systemabhängigkeiten installieren (z.B. für OpenCV)
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     libglib2.0-0 \
  && rm -rf /var/lib/apt/lists/*
 
 # Python-Abhängigkeiten installieren
-COPY requirements.txt ./
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Projektdateien kopieren
 COPY ./app /app
 
-# Flask-Konfiguration
-ENV FLASK_APP=main.py
-ENV FLASK_ENV=development
-ENV FLASK_DEBUG=1
+# Optional: .env laden, falls benötigt
+ENV PYTHONUNBUFFERED=1
 
-CMD ["flask", "run", "--host=0.0.0.0"]
+# Production-Server starten
+# Standard WSGI-Server für Production in Python
+# Multiprozessfähig (-w 4 für 4 Worker – später anpassbar)
+# ain:app bedeutet: in deiner main.py befindet sich app = Flask(__name__)
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]

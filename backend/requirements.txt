@@ -8,3 +8,4 @@ dotenv
 opencv-python
 ultralytics
 openai
+gunicorn

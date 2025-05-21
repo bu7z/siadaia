@@ -8,6 +8,7 @@ import bcrypt
 from flask_jwt_extended import JWTManager, create_access_token
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from flask_jwt_extended.exceptions import NoAuthorizationError
+import traceback
 
 # files
 import db_connector
@@ -262,6 +263,8 @@ def bestand_nach_kategorie(kategorie):
         daten = db_connector.get_full_inventory_by_category(kategorie)
         return jsonify({"data": daten})
     except Exception as e:
+        print("Fehler in /api/bestand-kategorie:")
+        traceback.print_exc()  # zeigt vollständigen Fehlerstack im Terminal
         return jsonify({"error": str(e)}), 500
 # add inventory
 @app.route('/api/inventar', methods=['POST'])

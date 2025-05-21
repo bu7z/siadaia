@@ -112,8 +112,8 @@ def get_full_inventory_by_category(kategorie):
             "packungseinheit": row[2],
             "ml_pro_einheit": row[3],
             "ml_pro_vk_einheit": row[4],
-            "ek_preis": float(row[5]),
-            "vk_preis": float(row[6]),
+            "ek_preis": float(row[5]) if row[5] is not None else 0.0,
+            "vk_preis": float(row[6]) if row[6] is not None else 0.0,
             "bild": row[7],
             "kategorie": row[8],
             "bestand": row[9]

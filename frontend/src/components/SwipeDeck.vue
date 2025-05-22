@@ -45,22 +45,36 @@ const reset = async () => {
 
 const fetchDrinks = async () => {
   loading.value = true
+  error.value = ''
+
   try {
     const res = await fetch('/api/examples')
+
+    // ❗ Erst prüfen, ob HTTP-Status erfolgreich ist
+    if (!res.ok) {
+      throw new Error(`Serverantwort war nicht ok: ${res.status}`)
+    }
+
+    // ✅ Versuche JSON zu parsen
     const data = await res.json()
+
+    // ✅ Log für Debug-Zwecke
+    console.log("✅ API-Daten erhalten:", data)
 
     if (data.success && Array.isArray(data.drinks)) {
       drinks.value = data.drinks
     } else {
-      error.value = '⚠️ Drinks konnten nicht geladen werden.'
+      throw new Error('Antwortstruktur ungültig oder keine Drinks vorhanden.')
     }
+
   } catch (err) {
     error.value = '🚫 Fehler beim Laden der Drinks.'
-    console.error('❌ API Fehler:', err)
+    console.error('❌ API Fehler:', err.message || err)
   } finally {
     loading.value = false
   }
 }
+
 
 const bestelleDrink = (drink) => {
   console.log(drink)

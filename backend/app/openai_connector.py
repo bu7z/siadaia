@@ -103,12 +103,11 @@ def create_example_drinks(drinks):
         {
             "role": "system",
             "content": (
-                "Du bist ein Barkeeper. Gib **ausschließlich ein gültiges JSON-Array** zurück. "
-                "KEINE Kommentare, KEINE Einleitungen, KEIN Markdown. "
-                "Nur das JSON:\n"
-                "[{ \"name\": \"Drinkname\", \"preis\": \"4.50€\", \"alk\": \"mittel\", \"zutaten\": [\"Zutat A - 50ml\"] }]"
+                "Du bist ein Barkeeper. Deine Aufgabe ist es, aus einer Liste von Getränken passende Mix-Getränke zu erstellen. "
+                "Gib deine Antwort **ausschließlich** als gültiges JSON-Array im folgenden Format zurück: \n"
+                "[{ \"name\": \"Drinkname\", \"preis\": \"4.50€\", \"alk\": \"mittel\", \"zutaten\": [\"Zutat A - 50ml\", \"Zutat B - 200ml\"] }]\n"
+                "⚠️ KEIN EINLEITUNGSTEXT, KEINE ERKLÄRUNG, KEIN MARKDOWN, KEIN TEXT AUSSERHALB DES ARRAYS."
 
-                "Antworte ausschließlich mit diesem Array. Kein Text davor oder danach!"
             )
         },
         {

@@ -2,19 +2,25 @@ version: '3.9'
 
 services:
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+    mem_limit: 1g  # Setzt das Speicherlimit auf 1 GB
     env_file:
-      - .env
+      - .env  # Lädt Umgebungsvariablen aus der .env-Datei
+    command: gunicorn --workers 3 --timeout 120 --bind 0.0.0.0:5000 main:app  # Gunicorn konfigurieren
     ports:
-      - "5000:5000"  # Backend nur über VPN erreichbar
+      - "0.0.0.0:5000:5000"  # Ermöglicht den Zugriff auf Port 5000
     restart: always
     networks:
       - app-net
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+    env_file:
+      - .env  # Lädt Umgebungsvariablen aus der .env-Datei
     ports:
-      - "3000:80"  # Frontend nur über VPN erreichbar
+      - "0.0.0.0:3000:80"  # Ermöglicht den Zugriff auf Port 3000
     restart: always
     depends_on:
       - backend

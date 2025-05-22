@@ -1,14 +1,20 @@
 version: '3.9'
 
 services:
-
   person_counter:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile  # ✅ gehört unter 'build', nicht direkt unter 'services'
     container_name: person_counter
     env_file:
       - .env
     volumes:
-      - ./snapshots:/app/snapshots  # optional für Debugging
+      - ./snapshots:/app/snapshots
+      - /etc/localtime:/etc/localtime:ro
     entrypoint: ["cron", "-f"]
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    external: true

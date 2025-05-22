@@ -4,13 +4,13 @@ services:
   backend:
     build:
       context: ./backend
-    mem_limit: 1g  # Setzt das Speicherlimit auf 1 GB
-    cpu_shares: 1024  # Setzt das CPU-Sharing für den Container (Standardwert)
+    mem_limit: 1g
+    cpu_shares: 1024
     env_file:
-      - .env  # Lädt Umgebungsvariablen aus der .env-Datei
-    command: gunicorn --workers 2 --bind 0.0.0.0:5000 main:app  # Gunicorn konfigurieren
+      - .env
+    command: gunicorn --workers 2 --timeout 180 --bind 0.0.0.0:5000 main:app
     ports:
-      - "0.0.0.0:5000:5000"  # Ermöglicht den Zugriff auf Port 5000
+      - "10.0.0.1:5000:5000"
     restart: always
     networks:
       - app-net
@@ -19,9 +19,9 @@ services:
     build:
       context: ./frontend
     env_file:
-      - .env  # Lädt Umgebungsvariablen aus der .env-Datei
+      - .env
     ports:
-      - "0.0.0.0:3000:80"  # Ermöglicht den Zugriff auf Port 3000
+      - "0.0.0.0:3000:80"
     restart: always
     depends_on:
       - backend
@@ -30,4 +30,4 @@ services:
 
 networks:
   app-net:
-    driver: bridge
+    external: true  # <- jetzt identisch mit den anderen Dateien

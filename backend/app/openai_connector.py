@@ -107,7 +107,7 @@ def create_example_drinks(drinks):
                 "[{ \"name\": \"Drinkname\", \"preis\": \"4.50€\", \"alk\": \"mittel\", \"zutaten\": [\"Zutat A - 50ml\"] }]\n"
                 "KEIN Text davor oder danach, KEIN Markdown, KEIN Kommentar – nur das JSON-Array."
                 "Erstelle bitte **höchstens 6 Drinks** basierend auf dieser Liste. Gib nur ein JSON-Array zurück."
-                "Gerne kannst du Zutaten wie Vodka und Orangesaft oder Jack Daniels und Cola in einem vernünftigen Verhältnis mischen, beispielhaft."
+                "Gerne kannst du Zutaten wie Vodka und Orangesaft oder Jack Daniels und Cola in einem vernünftigen Verhältnis mischen, beispielhaft. Behalte aber eine gute Mischung bei zwischen Flaschen getränken wie Hirsch Helles und anderweitigem, außerdem wäre es schön wenn du imm 50ml an Spiritusoen also 2 Einheiten verwedest falls du mischungen machst."
             )
         },
         {

@@ -214,13 +214,22 @@ def check():
 # tinder getränke 
 @app.route('/api/examples', methods=['GET'])
 def create():
-    drinks_available = db_connector.get_available_drinks()
-    examples_drinks = openai_connector.create_example_drinks(drinks_available)
+    try:
+        drinks_available = db_connector.get_available_drinks()
+        examples_drinks = openai_connector.create_example_drinks(drinks_available)
 
-    return jsonify({
-        "success": True,
-        "drinks": examples_drinks
-    })
+        return jsonify({
+            "success": True,
+            "drinks": examples_drinks
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()  # vollständiger Fehlerstack im Server-Log
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 ####################
 # Object Detection #
@@ -365,4 +374,4 @@ def get_vergangene_bestellungen():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)

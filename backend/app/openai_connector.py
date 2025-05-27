@@ -93,7 +93,7 @@ def validate_drink_inquiry(inquiry, drinks):
 
 
 def create_example_drinks(drinks):
-    import re
+    import json
 
     drink_list = "\n".join([
         f"- {d['name']} ({d['ml_pro_vk_einheit']}ml, {d['vk_preis']:.2f}€)" for d in drinks
@@ -103,13 +103,11 @@ def create_example_drinks(drinks):
         {
             "role": "system",
             "content": (
-                "Du bist ein Barkeeper. Gib ein **reines JSON-Array** zurück, das folgendermaßen aussieht – "
-                "ohne Einleitung, Erklärung oder Markdown:\n"
-                "[\n"
-                "  { \"name\": \"Drinkname\", \"preis\": \"4.50€\", \"alk\": \"mittel\", \"zutaten\": [\"Zutat A - 50ml\", \"Zutat B - 200ml\"] },\n"
-                "  ...\n"
-                "]\n"
-                "Antworte ausschließlich mit diesem Array. Kein Text davor oder danach!"
+                "Du bist ein Barkeeper. Gib **ausschließlich ein gültiges JSON-Array** im folgenden Format zurück:\n"
+                "[{ \"name\": \"Drinkname\", \"preis\": \"4.50€\", \"alk\": \"mittel\", \"zutaten\": [\"Zutat A - 50ml\"] }]\n"
+                "KEIN Text davor oder danach, KEIN Markdown, KEIN Kommentar – nur das JSON-Array."
+                "Erstelle bitte **höchstens 6 Drinks** basierend auf dieser Liste. Gib nur ein JSON-Array zurück."
+                "Gerne kannst du Zutaten wie Vodka und Orangesaft oder Jack Daniels und Cola in einem vernünftigen Verhältnis mischen, beispielhaft. Behalte aber eine gute Mischung bei zwischen Flaschen getränken wie Hirsch Helles und anderweitigem, außerdem wäre es schön wenn du imm 50ml an Spiritusoen also 2 Einheiten verwedest falls du mischungen machst."
             )
         },
         {
@@ -125,19 +123,26 @@ def create_example_drinks(drinks):
         model="gpt-4",
         messages=messages,
         temperature=0.7,
-        max_tokens=500
+        max_tokens=1500
     )
 
     raw_text = response.choices[0].message.content.strip()
+    print("🔍 GPT-Rohantwort:\n", repr(raw_text))
 
-    # Versuche JSON-Array aus der Antwort zu extrahieren
-    match = re.search(r'\[\s*{.*}\s*\]', raw_text, re.DOTALL)
-    if not match:
-        raise ValueError(f"❌ Kein JSON-Array erkannt:\n{raw_text}")
+    # Strip Markdown-Blöcke
+    if raw_text.startswith("```json"):
+        raw_text = raw_text.replace("```json", "").replace("```", "").strip()
 
+    # Versuche direktes JSON
     try:
-        drinks_json = json.loads(match.group(0))
-    except json.JSONDecodeError as e:
-        raise ValueError(f"❌ JSON Parse Error: {e}\nAuszug:\n{match.group(0)}")
+        drinks_json = json.loads(raw_text)
+        if not isinstance(drinks_json, list):
+            raise ValueError("GPT-Antwort ist kein JSON-Array.")
+        return drinks_json
 
-    return drinks_json
+    except json.JSONDecodeError as e:
+        # Fallback: Truncation erkennen
+        if raw_text.endswith(',') or raw_text.endswith('{') or raw_text.endswith('['):
+            raise ValueError("❌ GPT-Antwort wurde offenbar abgeschnitten. max_tokens erhöhen!")
+
+        raise ValueError(f"❌ JSON Parse Error: {e}\nAntwort:\n{raw_text}")

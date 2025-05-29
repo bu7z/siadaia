@@ -370,7 +370,18 @@ def get_vergangene_bestellungen():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
-
+##############################
+# Endpoint for visitor Stats #
+##############################
+@app.route('/api/person-history', methods=['GET'])
+@jwt_required()
+def get_person_history():
+    try:
+        result = db_connector.get_person_counts()
+        return jsonify({"person_count": result})
+    except Exception as e:
+        print("Fehler bei /api/person-history:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 if __name__ == '__main__':

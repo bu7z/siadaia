@@ -13,7 +13,6 @@ const showOrderModal = ref(false)
 const selectedDrink = ref(null)
 const showSuccessToast = ref(false)
 
-
 const likeDrink = () => {
   cardClass.value = 'swipe-right'
   setTimeout(() => {
@@ -45,39 +44,24 @@ const reset = async () => {
 
 const fetchDrinks = async () => {
   loading.value = true
-  error.value = ''
-
   try {
     const res = await fetch('/api/examples')
-
-    // ❗ Erst prüfen, ob HTTP-Status erfolgreich ist
-    if (!res.ok) {
-      throw new Error(`Serverantwort war nicht ok: ${res.status}`)
-    }
-
-    // ✅ Versuche JSON zu parsen
     const data = await res.json()
-
-    // ✅ Log für Debug-Zwecke
-    console.log("✅ API-Daten erhalten:", data)
 
     if (data.success && Array.isArray(data.drinks)) {
       drinks.value = data.drinks
     } else {
-      throw new Error('Antwortstruktur ungültig oder keine Drinks vorhanden.')
+      error.value = '⚠️ Drinks konnten nicht geladen werden.'
     }
-
   } catch (err) {
     error.value = '🚫 Fehler beim Laden der Drinks.'
-    console.error('❌ API Fehler:', err.message || err)
+    console.error('❌ API Fehler:', err)
   } finally {
     loading.value = false
   }
 }
 
-
 const bestelleDrink = (drink) => {
-  console.log(drink)
   selectedDrink.value = drink
   showOrderModal.value = true
 }
@@ -105,8 +89,30 @@ onMounted(fetchDrinks)
     />
 
     <div v-if="loading" class="my-5 loading-container">
-      <div class="cocktail-loader mb-3"></div>
-      <p class="fs-5 fw-semibold text-dark">Lade Getränke...</p>
+      <div class="shaker-svg-container">
+        <svg
+          viewBox="0 0 100 200"
+          class="shaker-svg"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <!-- Shaker-Body -->
+          <rect x="20" y="30" width="60" height="140" rx="20" ry="20" fill="#bbb" />
+          <!-- Cap -->
+          <rect x="35" y="10" width="30" height="20" rx="5" ry="5" fill="#ccc" />
+          <!-- Flüssigkeit mit animierter Welle -->
+          <clipPath id="liquidClip">
+            <path
+              class="wave-path"
+              d=""
+              fill="red"
+            />
+          </clipPath>
+          <g clip-path="url(#liquidClip)">
+            <rect x="20" y="90" width="60" height="80" fill="#ff6b6b" />
+          </g>
+        </svg>
+      </div>
+      <p class="fs-5 fw-semibold text-dark mt-3">Mixing Drinks...</p>
     </div>
 
     <div v-else-if="error" class="text-danger">
@@ -145,7 +151,7 @@ onMounted(fetchDrinks)
       </ul>
       <button class="btn btn-outline-primary mt-3" @click="reset">🔁 Nochmal laden!</button>
     </div>
-    <!-- Toast: Bestellung erfolgreich -->
+
     <transition name="fade">
       <div
         v-if="showSuccessToast"
@@ -185,23 +191,53 @@ onMounted(fetchDrinks)
   flex-direction: column;
   align-items: center;
 }
-.cocktail-loader {
-  width: 60px;
-  height: 60px;
-  background: radial-gradient(circle at 50% 50%, #ff6b6b 30%, transparent 30%),
-              linear-gradient(to top, #ff6b6b 0%, #c73866 100%);
-  border-radius: 30% 30% 10% 10%;
-  animation: bounce 1s infinite ease-in-out;
-  box-shadow: 0 0 15px rgba(199, 56, 102, 0.3);
+
+/* SVG Shaker */
+.shaker-svg-container {
+  width: 80px;
+  height: 160px;
+  animation: shaker-move 1.5s infinite ease-in-out;
 }
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
+.shaker-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Animierte Wellenpfad */
+@keyframes wave {
+  0% {
+    d: path("M20,110 Q40,105 60,110 T100,110 L100,200 L0,200 Z");
   }
   50% {
-    transform: translateY(-12px);
+    d: path("M20,110 Q40,115 60,110 T100,110 L100,200 L0,200 Z");
+  }
+  100% {
+    d: path("M20,110 Q40,105 60,110 T100,110 L100,200 L0,200 Z");
   }
 }
+
+/* Bewegung des Shakers */
+@keyframes shaker-move {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(3deg);
+  }
+  50% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(2deg);
+  }
+}
+
+/* Fallback für Safari: wellenlose Flüssigkeit */
+.wave-path {
+  animation: wave 2s infinite ease-in-out;
+  d: path("M20,110 Q40,105 60,110 T100,110 L100,200 L0,200 Z");
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s;
@@ -210,5 +246,4 @@ onMounted(fetchDrinks)
 .fade-leave-to {
   opacity: 0;
 }
-
 </style>

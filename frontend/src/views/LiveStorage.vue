@@ -6,12 +6,12 @@ import { ref, onMounted } from 'vue'
 const cameraUrls = ref([])
 
 onMounted(() => {
-  const cameraUrls = ref([
-  '/cam/1',
-  '/cam/2',
-  '/cam/3',
-  '/cam/4'
-])
+  cameraUrls.value = [
+    '/cam/1',
+    '/cam/2',
+    '/cam/3',
+    '/cam/4'
+  ]
 })
 </script>
 

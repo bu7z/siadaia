@@ -30,4 +30,4 @@ services:
 
 networks:
   app-net:
-    external: true  # <- jetzt identisch mit den anderen Dateien
+    external: true

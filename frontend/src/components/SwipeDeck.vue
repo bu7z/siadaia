@@ -13,7 +13,6 @@ const showOrderModal = ref(false)
 const selectedDrink = ref(null)
 const showSuccessToast = ref(false)
 
-
 const likeDrink = () => {
   cardClass.value = 'swipe-right'
   setTimeout(() => {
@@ -52,18 +51,17 @@ const fetchDrinks = async () => {
     if (data.success && Array.isArray(data.drinks)) {
       drinks.value = data.drinks
     } else {
-      error.value = '⚠️ Drinks konnten nicht geladen werden.'
+      error.value = 'Drinks konnten nicht geladen werden.'
     }
   } catch (err) {
-    error.value = '🚫 Fehler beim Laden der Drinks.'
-    console.error('❌ API Fehler:', err)
+    error.value = 'Fehler beim Laden der Drinks.'
+    console.error('API Fehler:', err)
   } finally {
     loading.value = false
   }
 }
 
 const bestelleDrink = (drink) => {
-  console.log(drink)
   selectedDrink.value = drink
   showOrderModal.value = true
 }
@@ -91,8 +89,8 @@ onMounted(fetchDrinks)
     />
 
     <div v-if="loading" class="my-5 loading-container">
-      <div class="cocktail-loader mb-3"></div>
-      <p class="fs-5 fw-semibold text-dark">Lade Getränke...</p>
+      <div class="cocktail-shaker"></div>
+      <p class="fs-5 fw-semibold text-dark">Mixing Drinks...</p>
     </div>
 
     <div v-else-if="error" class="text-danger">
@@ -131,7 +129,7 @@ onMounted(fetchDrinks)
       </ul>
       <button class="btn btn-outline-primary mt-3" @click="reset">🔁 Nochmal laden!</button>
     </div>
-    <!-- Toast: Bestellung erfolgreich -->
+
     <transition name="fade">
       <div
         v-if="showSuccessToast"
@@ -171,21 +169,36 @@ onMounted(fetchDrinks)
   flex-direction: column;
   align-items: center;
 }
-.cocktail-loader {
-  width: 60px;
-  height: 60px;
-  background: radial-gradient(circle at 50% 50%, #ff6b6b 30%, transparent 30%),
-              linear-gradient(to top, #ff6b6b 0%, #c73866 100%);
-  border-radius: 30% 30% 10% 10%;
-  animation: bounce 1s infinite ease-in-out;
-  box-shadow: 0 0 15px rgba(199, 56, 102, 0.3);
+.cocktail-shaker {
+  position: relative;
+  width: 50px;
+  height: 100px;
+  background: linear-gradient(to bottom, #ccc, #999);
+  border-radius: 15px 15px 10px 10px;
+  margin-bottom: 20px;
+  animation: shake 1s infinite ease-in-out;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
 }
-@keyframes bounce {
+.cocktail-shaker::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 15px;
+  background: linear-gradient(to bottom, #bbb, #888);
+  border-radius: 50% 50% 0 0;
+}
+@keyframes shake {
   0%, 100% {
-    transform: translateY(0);
+    transform: rotate(0deg);
   }
-  50% {
-    transform: translateY(-12px);
+  25% {
+    transform: rotate(10deg);
+  }
+  75% {
+    transform: rotate(-10deg);
   }
 }
 .fade-enter-active,
@@ -196,5 +209,4 @@ onMounted(fetchDrinks)
 .fade-leave-to {
   opacity: 0;
 }
-
 </style>

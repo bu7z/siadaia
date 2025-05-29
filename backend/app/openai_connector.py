@@ -94,6 +94,7 @@ def validate_drink_inquiry(inquiry, drinks):
 
 def create_example_drinks(drinks):
     import re
+    import json
 
     drink_list = "\n".join([
         f"- {d['name']} ({d['ml_pro_vk_einheit']}ml, {d['vk_preis']:.2f}€)" for d in drinks
@@ -103,13 +104,10 @@ def create_example_drinks(drinks):
         {
             "role": "system",
             "content": (
-                "Du bist ein Barkeeper. Gib ein **reines JSON-Array** zurück, das folgendermaßen aussieht – "
-                "ohne Einleitung, Erklärung oder Markdown:\n"
-                "[\n"
-                "  { \"name\": \"Drinkname\", \"preis\": \"4.50€\", \"alk\": \"mittel\", \"zutaten\": [\"Zutat A - 50ml\", \"Zutat B - 200ml\"] },\n"
-                "  ...\n"
-                "]\n"
-                "Antworte ausschließlich mit diesem Array. Kein Text davor oder danach!"
+                "Du bist ein Barkeeper. Deine Aufgabe ist es, aus einer Liste von Getränken passende Mix-Getränke zu erstellen. "
+                "Gib deine Antwort **ausschließlich** als gültiges JSON-Array im folgenden Format zurück: \n"
+                "[{ \"name\": \"Drinkname\", \"preis\": \"4.50€\", \"alk\": \"mittel\", \"zutaten\": [\"Zutat A - 50ml\", \"Zutat B - 200ml\"] }]\n"
+                "⚠️ KEIN EINLEITUNGSTEXT, KEINE ERKLÄRUNG, KEIN MARKDOWN, KEIN TEXT AUSSERHALB DES ARRAYS."
             )
         },
         {
@@ -129,15 +127,19 @@ def create_example_drinks(drinks):
     )
 
     raw_text = response.choices[0].message.content.strip()
+    print("🔍 GPT-Rohantwort:\n", repr(raw_text))  # <-- für Debugging
 
-    # Versuche JSON-Array aus der Antwort zu extrahieren
-    match = re.search(r'\[\s*{.*}\s*\]', raw_text, re.DOTALL)
-    if not match:
-        raise ValueError(f"❌ Kein JSON-Array erkannt:\n{raw_text}")
-
+    # Direkt versuchen zu parsen
     try:
-        drinks_json = json.loads(match.group(0))
-    except json.JSONDecodeError as e:
-        raise ValueError(f"❌ JSON Parse Error: {e}\nAuszug:\n{match.group(0)}")
+        # eventuell enthaltene Markdown-Anführungen entfernen
+        if raw_text.startswith("```json"):
+            raw_text = raw_text.replace("```json", "").replace("```", "").strip()
 
-    return drinks_json
+        drinks_json = json.loads(raw_text)
+        if not isinstance(drinks_json, list):
+            raise ValueError("❌ JSON ist kein Array.")
+        return drinks_json
+
+    except json.JSONDecodeError as e:
+        raise ValueError(f"❌ JSON Parse Error: {e}\nAntwort:\n{raw_text}")
+

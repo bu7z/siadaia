@@ -3,6 +3,7 @@ import NavBar from '@/components/NavBar.vue'
 import Footer from '@/components/Footer.vue'
 import HeroInventory from '@/components/HeroInventory.vue'
 import InventoryChart from '@/components/InventoryChart.vue'
+import PersonChart from '@/components/PersonChart.vue'
 
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -10,24 +11,16 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const user = ref(null)
 const loading = ref(true)
-const error = ref('')
 
 onMounted(async () => {
   const token = localStorage.getItem('token')
-
-  if (!token) {
-    router.push('/')
-    return
-  }
+  if (!token) return router.push('/')
 
   try {
     const res = await fetch('/api/verify-token', {
-      method: 'GET',
       headers: { Authorization: `Bearer ${token}` }
     })
-
     const data = await res.json()
-
     if (data.success) {
       user.value = data.user
       loading.value = false
@@ -36,7 +29,7 @@ onMounted(async () => {
       router.push('/')
     }
   } catch (err) {
-    console.error('Fehler beim Token-Check:', err)
+    console.error('Token-Fehler:', err)
     localStorage.removeItem('token')
     router.push('/')
   }
@@ -56,7 +49,7 @@ onMounted(async () => {
     <NavBar />
 
     <main class="main-content px-4 py-4">
-      <h2>Hallo, {{ user.username }} 👋</h2>
+      <h2>Hallo, {{ user.username }}</h2>
       <p class="mb-4">Du bist eingeloggt als <strong>{{ user.rolle }}</strong>.</p>
 
       <div class="container my-5">
@@ -65,7 +58,7 @@ onMounted(async () => {
             <InventoryChart />
           </div>
           <div class="col-md-6">
-            <InventoryChart />
+            <PersonChart />
           </div>
         </div>
       </div>
@@ -82,23 +75,7 @@ onMounted(async () => {
   background-color: #121212;
 }
 
-.sidebar {
-  width: 70px;
-  background-color: #1f1f1f;
-  border-right: 1px solid #333;
-  min-height: 100%;
-}
-
 .main-content {
   flex: 1;
-}
-
-i {
-  color: #ccc;
-  cursor: pointer;
-}
-
-i:hover {
-  color: white;
 }
 </style>

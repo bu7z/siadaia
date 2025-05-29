@@ -6,14 +6,12 @@ import { ref, onMounted } from 'vue'
 const cameraUrls = ref([])
 
 onMounted(() => {
-  const ips = [
-    import.meta.env.VITE_STORAGE_CAM_1,
-    import.meta.env.VITE_STORAGE_CAM_2,
-    import.meta.env.VITE_STORAGE_CAM_3,
-    import.meta.env.VITE_STORAGE_CAM_4
-  ].filter(Boolean)
-
-  cameraUrls.value = ips.map(ip => `http://${ip}/axis-cgi/mjpg/video.cgi`)
+  const cameraUrls = ref([
+  '/cam/1',
+  '/cam/2',
+  '/cam/3',
+  '/cam/4'
+])
 })
 </script>
 

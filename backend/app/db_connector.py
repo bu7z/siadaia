@@ -272,3 +272,19 @@ def get_all_orders():
                 ORDER BY bestellt_am DESC
             """)
             return cur.fetchall()
+
+#################
+# Visitor Stats #
+#################
+def get_person_counts():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT timestamp, count FROM person_count ORDER BY timestamp ASC
+    """)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [
+        {"timestamp": row[0].isoformat(), "count": row[1]} for row in rows
+    ]

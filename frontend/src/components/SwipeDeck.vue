@@ -51,11 +51,11 @@ const fetchDrinks = async () => {
     if (data.success && Array.isArray(data.drinks)) {
       drinks.value = data.drinks
     } else {
-      error.value = 'Drinks konnten nicht geladen werden.'
+      error.value = '⚠️ Drinks konnten nicht geladen werden.'
     }
   } catch (err) {
-    error.value = 'Fehler beim Laden der Drinks.'
-    console.error('API Fehler:', err)
+    error.value = '🚫 Fehler beim Laden der Drinks.'
+    console.error('❌ API Fehler:', err)
   } finally {
     loading.value = false
   }
@@ -89,8 +89,30 @@ onMounted(fetchDrinks)
     />
 
     <div v-if="loading" class="my-5 loading-container">
-      <div class="cocktail-shaker"></div>
-      <p class="fs-5 fw-semibold text-dark">Mixing Drinks...</p>
+      <div class="shaker-svg-container">
+        <svg
+          viewBox="0 0 100 200"
+          class="shaker-svg"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <!-- Shaker-Body -->
+          <rect x="20" y="30" width="60" height="140" rx="20" ry="20" fill="#bbb" />
+          <!-- Cap -->
+          <rect x="35" y="10" width="30" height="20" rx="5" ry="5" fill="#ccc" />
+          <!-- Flüssigkeit mit animierter Welle -->
+          <clipPath id="liquidClip">
+            <path
+              class="wave-path"
+              d=""
+              fill="red"
+            />
+          </clipPath>
+          <g clip-path="url(#liquidClip)">
+            <rect x="20" y="90" width="60" height="80" fill="#ff6b6b" />
+          </g>
+        </svg>
+      </div>
+      <p class="fs-5 fw-semibold text-dark mt-3">Mixing Drinks...</p>
     </div>
 
     <div v-else-if="error" class="text-danger">
@@ -169,38 +191,53 @@ onMounted(fetchDrinks)
   flex-direction: column;
   align-items: center;
 }
-.cocktail-shaker {
-  position: relative;
-  width: 50px;
-  height: 100px;
-  background: linear-gradient(to bottom, #ccc, #999);
-  border-radius: 15px 15px 10px 10px;
-  margin-bottom: 20px;
-  animation: shake 1s infinite ease-in-out;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+
+/* SVG Shaker */
+.shaker-svg-container {
+  width: 80px;
+  height: 160px;
+  animation: shaker-move 1.5s infinite ease-in-out;
 }
-.cocktail-shaker::before {
-  content: '';
-  position: absolute;
-  top: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 15px;
-  background: linear-gradient(to bottom, #bbb, #888);
-  border-radius: 50% 50% 0 0;
+.shaker-svg {
+  width: 100%;
+  height: 100%;
 }
-@keyframes shake {
+
+/* Animierte Wellenpfad */
+@keyframes wave {
+  0% {
+    d: path("M20,110 Q40,105 60,110 T100,110 L100,200 L0,200 Z");
+  }
+  50% {
+    d: path("M20,110 Q40,115 60,110 T100,110 L100,200 L0,200 Z");
+  }
+  100% {
+    d: path("M20,110 Q40,105 60,110 T100,110 L100,200 L0,200 Z");
+  }
+}
+
+/* Bewegung des Shakers */
+@keyframes shaker-move {
   0%, 100% {
     transform: rotate(0deg);
   }
   25% {
-    transform: rotate(10deg);
+    transform: rotate(3deg);
+  }
+  50% {
+    transform: rotate(-3deg);
   }
   75% {
-    transform: rotate(-10deg);
+    transform: rotate(2deg);
   }
 }
+
+/* Fallback für Safari: wellenlose Flüssigkeit */
+.wave-path {
+  animation: wave 2s infinite ease-in-out;
+  d: path("M20,110 Q40,105 60,110 T100,110 L100,200 L0,200 Z");
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s;

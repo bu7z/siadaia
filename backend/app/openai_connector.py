@@ -108,6 +108,7 @@ def create_example_drinks(drinks):
                 "Gib deine Antwort **ausschließlich** als gültiges JSON-Array im folgenden Format zurück: \n"
                 "[{ \"name\": \"Drinkname\", \"preis\": \"4.50€\", \"alk\": \"mittel\", \"zutaten\": [\"Zutat A - 50ml\", \"Zutat B - 200ml\"] }]\n"
                 "⚠️ KEIN EINLEITUNGSTEXT, KEINE ERKLÄRUNG, KEIN MARKDOWN, KEIN TEXT AUSSERHALB DES ARRAYS."
+                "deine Getränkevorschläge sollten außerdem kein bullshit enthalten sonder real trinkbare getränke sein"
             )
         },
         {

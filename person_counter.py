@@ -22,11 +22,15 @@ MODEL_PATH = "yolov8n.pt"
 
 # === Bild holen ===
 try:
-    response = requests.get(SNAPSHOT_URL, timeout=5)
-    response.raise_for_status()
-    with open(SNAPSHOT_FILE, "wb") as f:
-        f.write(response.content)
-    print(f"[{datetime.now()}] Snapshot gespeichert.")
+    response = requests.get(SNAPSHOT_URL, stream=True, timeout=5)
+    for chunk in response.iter_content(chunk_size=1024):
+    if b'\xff\xd8' in chunk and b'\xff\xd9' in chunk:  # Start/End of JPEG
+        start = chunk.find(b'\xff\xd8')
+        end = chunk.find(b'\xff\xd9') + 2
+        jpg = chunk[start:end]
+        with open(SNAPSHOT_FILE, "wb") as f:
+            f.write(jpg)
+        break
 except Exception as e:
     print(f"[{datetime.now()}] Fehler beim Laden des Snapshots: {e}")
     exit(1)

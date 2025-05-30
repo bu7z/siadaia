@@ -11,7 +11,6 @@ services:
     volumes:
       - ./snapshots:/app/snapshots
       - /etc/localtime:/etc/localtime:ro
-    entrypoint: ["cron", "-f"]
     networks:
       - app-net
 

@@ -23,20 +23,27 @@ MODEL_PATH = "yolov8n.pt"
 # === Bild holen ===
 try:
     response = requests.get(SNAPSHOT_URL, stream=True, timeout=5)
-    for chunk in response.iter_content(chunk_size=1024):
-        if b'\xff\xd8' in chunk and b'\xff\xd9' in chunk:  # Start/End of JPEG
-            start = chunk.find(b'\xff\xd8')
-            end = chunk.find(b'\xff\xd9') + 2
-            jpg = chunk[start:end]
+    buffer = b""
+    for i, chunk in enumerate(response.iter_content(chunk_size=1024)):
+        buffer += chunk
+        if b'\xff\xd8' in buffer and b'\xff\xd9' in buffer:
+            start = buffer.find(b'\xff\xd8')
+            end = buffer.find(b'\xff\xd9') + 2
+            jpg = buffer[start:end]
             with open(SNAPSHOT_FILE, "wb") as f:
                 f.write(jpg)
             break
+        # Sicherheitsabbruch nach z. B. 100 Chunks (~100 KB)
+        if i > 100:
+            print(f"[{datetime.now()}] Abbruch: kein vollständiges JPEG nach 100 Chunks.")
+            exit(1)
     else:
         print(f"[{datetime.now()}] Kein vollständiges JPEG im Stream gefunden.")
         exit(1)
 except Exception as e:
     print(f"[{datetime.now()}] Fehler beim Laden des Snapshots: {e}")
     exit(1)
+
 
 # === YOLO laden und Personen zählen ===
 try:

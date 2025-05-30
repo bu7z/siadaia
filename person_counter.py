@@ -24,13 +24,16 @@ MODEL_PATH = "yolov8n.pt"
 try:
     response = requests.get(SNAPSHOT_URL, stream=True, timeout=5)
     for chunk in response.iter_content(chunk_size=1024):
-    if b'\xff\xd8' in chunk and b'\xff\xd9' in chunk:  # Start/End of JPEG
-        start = chunk.find(b'\xff\xd8')
-        end = chunk.find(b'\xff\xd9') + 2
-        jpg = chunk[start:end]
-        with open(SNAPSHOT_FILE, "wb") as f:
-            f.write(jpg)
-        break
+        if b'\xff\xd8' in chunk and b'\xff\xd9' in chunk:  # Start/End of JPEG
+            start = chunk.find(b'\xff\xd8')
+            end = chunk.find(b'\xff\xd9') + 2
+            jpg = chunk[start:end]
+            with open(SNAPSHOT_FILE, "wb") as f:
+                f.write(jpg)
+            break
+    else:
+        print(f"[{datetime.now()}] Kein vollständiges JPEG im Stream gefunden.")
+        exit(1)
 except Exception as e:
     print(f"[{datetime.now()}] Fehler beim Laden des Snapshots: {e}")
     exit(1)

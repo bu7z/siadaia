@@ -51,25 +51,25 @@ const chartOptions = {
       suggestedMax: 10,
       ticks: {
         stepSize: 1,
-        color: '#000'
+        color: '#fff' // Geändert von #000 auf #fff
       },
       grid: {
-        color: '#ccc'
+        color: 'rgba(255, 255, 255, 0.1)' // Helleres Grid für dunklen Hintergrund
       }
     },
     x: {
       ticks: {
-        color: '#000'
+        color: '#fff' // Geändert von #000 auf #fff
       },
       grid: {
-        color: '#eee'
+        color: 'rgba(255, 255, 255, 0.05)' // Helleres Grid für dunklen Hintergrund
       }
     }
   },
   plugins: {
     legend: {
       labels: {
-        color: '#000'
+        color: '#fff' // Geändert von #000 auf #fff
       }
     }
   }

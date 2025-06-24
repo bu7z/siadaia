@@ -22,7 +22,7 @@ const rawData = ref([])
 const chartData = ref({ labels: [], datasets: [] })
 const startDate = ref('')
 const endDate = ref('')
-const groupBy = ref('minute')
+const groupBy = ref('day')
 
 const options = ['minute', 'hour', 'day']
 

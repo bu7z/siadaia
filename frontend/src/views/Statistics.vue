@@ -128,35 +128,44 @@ const berechneStatistik = (liste) => {
   let total = 0
   const now = new Date()
 
-  const getKey = (d) => {
-    if (zeitraum.value === 'heute') {
-      const past24h = new Date(now.getTime() - 24 * 60 * 60 * 1000)
-      if (d < past24h) return null
-      return `${d.getHours().toString().padStart(2, '0')}:${Math.floor(d.getMinutes() / 10) * 10}`
-    } else if (zeitraum.value === 'woche') {
-      return `${d.getDate()}.${d.getMonth() + 1} ${d.getHours()}h`
-    } else if (zeitraum.value === 'monat') {
-      return `${d.getDate()}.${d.getMonth() + 1}`
-    }
-    return null
-  }
-
   liste.forEach(b => {
     const d = new Date(b.bestellt_am)
-    const key = getKey(d)
-    const preisNum = Number(b.preis) || 0
-    if (!key) return
+    let key, sortKey
+    
+    if (zeitraum.value === 'heute') {
+      const past24h = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+      if (d < past24h) return
+      key = `${d.getHours().toString().padStart(2, '0')}:${Math.floor(d.getMinutes() / 10) * 10}`
+      sortKey = d.getTime()
+    } else if (zeitraum.value === 'woche') {
+      const past7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+      if (d < past7d) return
+      key = `${d.getDate()}.${d.getMonth() + 1} ${d.getHours()}h`
+      sortKey = d.getTime()
+    } else if (zeitraum.value === 'monat') {
+      const past30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+      if (d < past30d) return
+      key = `${d.getDate()}.${d.getMonth() + 1}`
+      sortKey = d.getTime()
+    } else if (zeitraum.value === 'gesamt') {
+      key = `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`
+      sortKey = d.getTime()
+    } else return
 
+    const preisNum = Number(b.preis) || 0
     total += preisNum
-    if (!map.has(key)) map.set(key, { count: 0, sum: 0 })
+    
+    if (!map.has(key)) map.set(key, { count: 0, sum: 0, sortKey })
     map.get(key).count++
     map.get(key).sum += preisNum
   })
 
-  const sortedKeys = Array.from(map.keys()).sort()
-  zeitLabels.value = sortedKeys
-  anzahlProStunde.value = sortedKeys.map(k => map.get(k).count)
-  umsatzProStunde.value = sortedKeys.map(k => map.get(k).sum.toFixed(2))
+  // Sortiere nach dem sortKey (originales Datum)
+  const sortedEntries = Array.from(map.entries()).sort((a, b) => a[1].sortKey - b[1].sortKey)
+  
+  zeitLabels.value = sortedEntries.map(([key]) => key)
+  anzahlProStunde.value = sortedEntries.map(([, val]) => val.count)
+  umsatzProStunde.value = sortedEntries.map(([, val]) => val.sum.toFixed(2))
   umsatz.value = total.toFixed(2)
 }
 
@@ -232,7 +241,9 @@ const bestätigeZubereitet = async () => {
               <option value="heute">Heute (24h)</option>
               <option value="woche">Diese Woche</option>
               <option value="monat">Dieser Monat</option>
+              <option value="gesamt">Gesamt</option>
             </select>
+
           </div>
 
           <div class="mb-3" style="height: 220px;">

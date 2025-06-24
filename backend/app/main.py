@@ -13,7 +13,7 @@ import traceback
 # files
 import db_connector
 import openai_connector
-import object_detector
+from object_detector import generate_camera_stream, get_person_count, init_camera, get_latest_frame, cleanup
 
 
 load_dotenv()
@@ -238,17 +238,60 @@ def create():
 # draw boxes around storage
 @app.route('/api/camera-feed-sto')
 def camera_feed_sto():
-    return Response(object_detector.generate_camera_stream(1), mimetype='multipart/x-mixed-replace; boundary=frame')
-# draw boxes around audience
+    """Video-Stream für Lagerkamera (Storage) mit Objekterkennung"""
+    try:
+        from object_detector import generate_camera_stream, init_camera
+        init_camera(1)
+        return Response(
+            generate_camera_stream(1),
+            mimetype='multipart/x-mixed-replace; boundary=frame'
+        )
+    except Exception as e:
+        print(f"Fehler in camera-feed-sto: {str(e)}")
+        return jsonify({"error": "Camera feed unavailable"}), 500
+
 @app.route('/api/camera-feed-aud')
 def camera_feed_aud():
-    return Response(object_detector.generate_camera_stream(2), mimetype='multipart/x-mixed-replace; boundary=frame')
-# count people in audience feed
-# TODO: write to database?
+    """Video-Stream für Publikumskamera mit Personenzählung"""
+    try:
+        from object_detector import generate_camera_stream, init_camera
+        init_camera(2)
+        return Response(
+            generate_camera_stream(2),
+            mimetype='multipart/x-mixed-replace; boundary=frame'
+        )
+    except Exception as e:
+        print(f"Fehler in camera-feed-aud: {str(e)}")
+        return jsonify({"error": "Camera feed unavailable"}), 500
+
 @app.route('/api/person-count', methods=['GET'])
-def get_person_count():
-    from object_detector import person_count
-    return jsonify({"count": person_count})
+def handle_person_count():
+    """Liefert die aktuelle Personenzahl (thread-sicher)"""
+    try:
+        from object_detector import get_person_count, init_camera, get_latest_frame, _model
+        init_camera(2)  # AUDIENCE_CAM
+        frame = get_latest_frame(2)
+        if frame is not None:
+            results = _model.predict(source=frame, conf=0.4, classes=[0], verbose=False)
+            return jsonify({
+                "count": sum(1 for c in results[0].boxes.cls if int(c) == 0),
+                "timestamp": time.time()
+            })
+        return jsonify({
+            "count": get_person_count(),
+            "timestamp": time.time()
+        })
+    except Exception as e:
+        return jsonify({
+            "count": 0,
+            "error": str(e),
+            "timestamp": time.time()
+        }), 500
+
+@app.teardown_appcontext
+def shutdown(exception=None):
+    from object_detector import cleanup
+    cleanup()
 
 
 

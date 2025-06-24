@@ -9,24 +9,23 @@ from flask_jwt_extended import JWTManager, create_access_token
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from flask_jwt_extended.exceptions import NoAuthorizationError
 import traceback
+import time
 
 # files
 import db_connector
 import openai_connector
-from object_detector import generate_camera_stream, get_person_count, init_camera, get_latest_frame, cleanup
-
+from object_detector import generate_camera_stream, person_count, person_count_lock, cleanup, get_person_count
 
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, origins="*", supports_credentials=True) # Einschränkung CORS auf Frontend, bei Servertrennung localhost anpassen
+CORS(app, origins="*", supports_credentials=True)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 app.config["JWT_TOKEN_LOCATION"] = ["headers"]
 app.config["JWT_HEADER_NAME"] = "Authorization"
 app.config["JWT_HEADER_TYPE"] = "Bearer"
 
 jwt = JWTManager(app) 
-
 
 ###########
 # Testing #
@@ -48,12 +47,11 @@ def status():
 @app.route('/api/test-inventory')
 def test_inventory():
     return db_connector.inventory_test()
+
 # Bestand #
 @app.route('/api/test-bestand')
 def test_bestand():
     return db_connector.bestand_test()
-
-
 
 #################
 # Registrierung #
@@ -61,12 +59,10 @@ def test_bestand():
 @app.route('/api/register', methods=['POST'])
 def register_user():
     data = request.get_json()
-
     username = data.get('username')
     password = data.get('password')
     vorname = data.get('vorname')
     nachname = data.get('nachname')
-    print("test")
 
     if not username or not password:
         return jsonify({'success': False, 'message': 'Benutzername und Passwort sind erforderlich'}), 400
@@ -74,14 +70,10 @@ def register_user():
     if db_connector.check_username(username):
         return jsonify({'success': False, 'message': 'Benutzername bereits vergeben'}), 409
 
-    # Passwort hashen
     hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
-    # Neuen Benutzer einfügen
     db_connector.create_user(username, hashed_pw, vorname, nachname)
 
     return jsonify({'success': True, 'message': 'Registrierung erfolgreich'})
-
 
 #########
 # Login #
@@ -96,16 +88,10 @@ def login():
         return jsonify({'success': False, 'message': 'Benutzername und Passwort erforderlich'}), 400
 
     user = db_connector.get_user(username)
-    print("Benutzerdaten:", user)
-    if user:
-        print("Passwort-Rohwert aus DB (user[1]):", repr(user[1]))
-
     if user and bcrypt.checkpw(password.encode('utf-8'), user[1].encode('utf-8')):
-        user_id = user[0]
-        rolle = user[2]
         token = create_access_token(identity=username, additional_claims={
-            'id': user_id,
-            'rolle': rolle
+            'id': user[0],
+            'rolle': user[2]
         })
         return jsonify({'success': True, 'message': 'Login erfolgreich', 'token': token})
 
@@ -132,8 +118,6 @@ def change_password():
         print("Fehler beim Passwort-Update:", e)
         return jsonify({"success": False, "message": "Fehler beim Aktualisieren"}), 500
 
-
-
 #######################
 # Token-Verifizierung #
 #######################
@@ -150,11 +134,10 @@ def verify_token():
 # Chart Bestand #
 #################
 @app.route('/api/bestand', methods=['GET'])
-@jwt_required() #TODO: activated verification
+@jwt_required()
 def get_inventory_bestand():
     try:
         rows = db_connector.get_bestand()
-
         result = [
             {
                 "id": row[0],
@@ -165,118 +148,68 @@ def get_inventory_bestand():
             }
             for row in rows
         ]
-
         return jsonify({"inventar": result})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-
 ##################
 # Drink Advisory #
 ##################
-# geüfhrte drinkberatung
 @app.route('/api/beratung', methods=['POST'])
 def beratung():
     data = request.get_json()
-    vibe = data.get('vibe')
-    preferences = data.get('preferences', [])
-
     drinks_available = db_connector.get_available_drinks()
+    response_msg = openai_connector.get_drink_recommendation(
+        data.get('vibe'),
+        data.get('preferences', []),
+        drinks_available
+    )
+    return jsonify({"success": True, "drink": response_msg})
 
-    response_msg = openai_connector.get_drink_recommendation(vibe, preferences, drinks_available)
-
-    return jsonify({
-        "success": True,
-        "drink": response_msg
-    })
-
-# individuelle drinkprüfung
 @app.route('/api/check', methods=['POST'])
 def check():
     data = request.get_json()
     drink = data.get('drink', '')
     if "aschenbecher" in drink.lower():
-         return jsonify({
-        "success": True,
-        "drink": "Club Mate ...\nLuL"
-    })
+        return jsonify({"success": True, "drink": "Club Mate ...\nLuL"})
 
     drinks_available = db_connector.get_available_drinks()
-
     inquiry_check = openai_connector.validate_drink_inquiry(drink, drinks_available)
+    return jsonify({"success": True, "drink": inquiry_check})
 
-    return jsonify({
-        "success": True,
-        "drink": inquiry_check
-    })
-
-# tinder getränke 
 @app.route('/api/examples', methods=['GET'])
 def create():
     try:
         drinks_available = db_connector.get_available_drinks()
         examples_drinks = openai_connector.create_example_drinks(drinks_available)
-
-        return jsonify({
-            "success": True,
-            "drinks": examples_drinks
-        })
-
+        return jsonify({"success": True, "drinks": examples_drinks})
     except Exception as e:
-        import traceback
-        traceback.print_exc()  # vollständiger Fehlerstack im Server-Log
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
 
 ####################
 # Object Detection #
 ####################
-# TODO: JWT-Controlled Environment
-# draw boxes around storage
-@app.route('/api/camera-feed-sto')
-def camera_feed_sto():
-    """Video-Stream für Lagerkamera (Storage) mit Objekterkennung"""
+@app.route('/api/camera-feed-<cam>')
+def camera_feed(cam):
     try:
-        from object_detector import generate_camera_stream, init_camera
-        init_camera(1)
+        cam_type = 1 if cam == 'sto' else 2
         return Response(
-            generate_camera_stream(1),
-            mimetype='multipart/x-mixed-replace; boundary=frame'
+            generate_camera_stream(cam_type),
+            mimetype='multipart/x-mixed-replace; boundary=frame',
+            headers={
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'X-Accel-Buffering': 'no'
+            }
         )
     except Exception as e:
-        print(f"Fehler in camera-feed-sto: {str(e)}")
-        return jsonify({"error": "Camera feed unavailable"}), 500
-
-@app.route('/api/camera-feed-aud')
-def camera_feed_aud():
-    """Video-Stream für Publikumskamera mit Personenzählung"""
-    try:
-        from object_detector import generate_camera_stream, init_camera
-        init_camera(2)
-        return Response(
-            generate_camera_stream(2),
-            mimetype='multipart/x-mixed-replace; boundary=frame'
-        )
-    except Exception as e:
-        print(f"Fehler in camera-feed-aud: {str(e)}")
+        print(f"Fehler in camera-feed-{cam}: {str(e)}")
         return jsonify({"error": "Camera feed unavailable"}), 500
 
 @app.route('/api/person-count', methods=['GET'])
 def handle_person_count():
-    """Liefert die aktuelle Personenzahl (thread-sicher)"""
     try:
-        from object_detector import get_person_count, init_camera, get_latest_frame, _model
-        init_camera(2)  # AUDIENCE_CAM
-        frame = get_latest_frame(2)
-        if frame is not None:
-            results = _model.predict(source=frame, conf=0.4, classes=[0], verbose=False)
-            return jsonify({
-                "count": sum(1 for c in results[0].boxes.cls if int(c) == 0),
-                "timestamp": time.time()
-            })
         return jsonify({
             "count": get_person_count(),
             "timestamp": time.time()
@@ -290,9 +223,7 @@ def handle_person_count():
 
 @app.teardown_appcontext
 def shutdown(exception=None):
-    from object_detector import cleanup
     cleanup()
-
 
 
 #########
@@ -306,8 +237,7 @@ def get_inventar():
         return jsonify({"success": True, "inventar": items})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
-    
-# table + chart
+
 @app.route('/api/bestand-kategorie/<kategorie>', methods=['GET'])
 @jwt_required()
 def bestand_nach_kategorie(kategorie):
@@ -315,26 +245,23 @@ def bestand_nach_kategorie(kategorie):
         daten = db_connector.get_full_inventory_by_category(kategorie)
         return jsonify({"data": daten})
     except Exception as e:
-        print("Fehler in /api/bestand-kategorie:")
-        traceback.print_exc()  # zeigt vollständigen Fehlerstack im Terminal
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-# add inventory
+
 @app.route('/api/inventar', methods=['POST'])
 @jwt_required()
 def add_drink():
     try:
         data = request.get_json()
-
         required_fields = ['name', 'packungseinheit', 'ml_pro_einheit', 'ek_preis', 'vk_preis', 'kategorie']
         if not all(field in data for field in required_fields):
             return jsonify({"success": False, "message": "Unvollständige Angaben"}), 400
 
         db_connector.add_drink_to_inventar(data)
-
         return jsonify({"success": True, "message": "Getränk erfolgreich hinzugefügt"})
     except Exception as e:
         return jsonify({"success": False, "message": f"Serverfehler: {str(e)}"}), 500
-# add stock
+
 @app.route('/api/bestand', methods=['POST'])
 @jwt_required()
 def add_bestand_entry():
@@ -348,7 +275,6 @@ def add_bestand_entry():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
-
 ######################
 # Bestellungen/Order #
 ######################
@@ -356,9 +282,6 @@ def add_bestand_entry():
 def bestellung_absenden():
     try:
         data = request.get_json()
-        print("RAW BESTELLUNG:", data)
-
-        # Validierung
         required = ['drink_name', 'zutaten', 'preis', 'kundenname']
         for field in required:
             if field not in data:
@@ -395,7 +318,6 @@ def get_alle_bestellungen():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
-
 @app.route('/api/bestellungen/<int:bestellung_id>/zubereitet', methods=['PATCH'])
 @jwt_required()
 def markiere_zubereitet(bestellung_id):
@@ -413,8 +335,24 @@ def get_vergangene_bestellungen():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
+@app.teardown_appcontext
+def shutdown(exception=None):
+    cleanup()
 
+
+##############################
+# Endpoint for visitor Stats #
+##############################
+@app.route('/api/person-history', methods=['GET'])
+@jwt_required()
+def get_person_history():
+    try:
+        result = db_connector.get_person_counts()
+        return jsonify({"person_count": result})
+    except Exception as e:
+        print("Fehler bei /api/person-history:", e)
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)

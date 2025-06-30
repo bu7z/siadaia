@@ -38,7 +38,7 @@ jobs:
     - name: Upload SBOM
       uses: actions/upload-artifact@v4
       with:
-        name: sbom
+        name: sbom-siadaia
         path: sbom.spdx.json
 
     # 4. Dockerfile Check mit Hadolint

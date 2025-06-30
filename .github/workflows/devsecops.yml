@@ -32,9 +32,11 @@ jobs:
     - name: Generate SBOM
       uses: anchore/sbom-action@v0.15.0
       with:
-        path: 'backend'                   # korrekter Parameter
+        path: './backend'                   # korrekter Parameter
         format: 'spdx-json'              # gewünschtes Format
         output-file: 'backend/sbom.spdx.json'  # explizit gesetzt
+        upload-artifact: false
+        artifact-name: 'sbom-siadaia'
 
     - name: Debug SBOM output
       run: ls -lah backend/ sbom* || echo "No SBOM found"

@@ -48,6 +48,11 @@ jobs:
         path: backend/sbom.spdx.json
 
     # 4. Dockerfile Linting mit Hadolint
+    - name: Check Dockerfile before Hadolint
+    run: |
+      ls -lah backend/
+      cat backend/Dockerfile || echo "Dockerfile not readable"
+
     - name: Hadolint
       uses: hadolint/hadolint-action@v3.0.0
       with:

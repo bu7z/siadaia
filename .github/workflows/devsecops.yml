@@ -8,42 +8,42 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # Für gitleaks notwendig
+        fetch-depth: 0
 
     # 1. Secret Scanning
     - name: Gitleaks
-      uses: gitleaks/gitleaks-action@v2
+      uses: gitleaks/gitleaks-action@v2.5.0  # Aktualisierte Version
       with:
-        config-path: .gitleaks.toml
+        config-path: gitleaks.toml  # Korrigierter Dateiname
         fail-on-error: true
 
     # 2. Dependency Scanning
     - name: Trivy SCA Scan
-      uses: aquasecurity/trivy-action@master
+      uses: aquasecurity/trivy-action@0.18.0  # Stabile Version
       with:
         scan-type: 'fs'
         ignore-unfixed: true
         severity: 'CRITICAL,HIGH'
         exit-code: '1'
-        command: 'backend/'  # Nur Python-Backend scannen
+        command: 'backend/'
         format: 'table'
 
     # 3. SBOM Generierung
     - name: Generate SBOM
-      uses: anchore/sbom-action@v0.14
+      uses: anchore/sbom-action@v0.15.0  # Aktualisierte Version
       with:
         output-format: 'spdx-json'
         dir: 'backend'
     
     - name: Upload SBOM
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # Auf v4 aktualisiert
       with:
         name: sbom
         path: sbom.spdx.json
 
     # 4. Dockerfile Check
     - name: Hadolint
-      uses: hadolint/hadolint-action@v3
+      uses: hadolint/hadolint-action@v3.0.0  # Korrekte Version
       with:
         dockerfile: backend/Dockerfile
         failure-threshold: warning

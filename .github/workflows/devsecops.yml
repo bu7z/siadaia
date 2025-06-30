@@ -11,11 +11,15 @@ jobs:
         fetch-depth: 0
 
     # 1. Secret Scanning
-    - name: Gitleaks
-      uses: gitleaks/gitleaks-action@v2  # Aktualisierte Version
-      with:
-        config-path: .gitleaks.toml  # Korrigierter Dateiname
-        fail-on-error: true
+    - name: Run Gitleaks Secret Scan
+      run: |
+        curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+        chmod +x gitleaks
+        ./gitleaks detect \
+          --config=.gitleaks.toml \
+          --verbose \
+          --redact \
+          --exit-code 1
 
     # 2. Dependency Scanning
     - name: Trivy SCA Scan

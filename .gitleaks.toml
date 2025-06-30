@@ -4,6 +4,7 @@ title = "Gitleaks config"
 pathRegexes = ["__pycache__/"]
 
 [[rules]]
+id = "generic-api-key"
 description = "Generic API Key"
 regex = '''\b(api_key|token|secret)[\s=:]+["\']?[a-zA-Z0-9]{32,45}["\']?'''
 tags = ["key", "generic"]

@@ -58,6 +58,7 @@ jobs:
       with:
         dockerfile: ./backend/Dockerfile
         failure-threshold: warning
+        config: ./hadolint.yaml
         verbose: true
     - name: Output Hadolint logs
       if: failure()

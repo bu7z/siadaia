@@ -1,3 +1,5 @@
+[![DevSecOps Light](https://github.com/bu7z/siadaia/actions/workflows/devsecops.yml/badge.svg?branch=project%2FdevSecOps&event=push)](https://github.com/bu7z/siadaia/actions/workflows/devsecops.yml)
+
 # SIA - Drink and Inventory Advisory
 
 Willkommen zum **SIADaIA**-Projekt!

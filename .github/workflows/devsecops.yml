@@ -5,10 +5,10 @@ jobs:
   security_checks:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
+    - name: Checkout Repository
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # notwendig für gitleaks, um ganze Git-Historie zu scannen
+        fetch-depth: 0  # notwendig für vollständige Secret-Scans mit Gitleaks
 
     # 1. Secret Scanning mit Gitleaks (offizielle Action)
     - name: Run Gitleaks Secret Scan
@@ -32,20 +32,20 @@ jobs:
     - name: Generate SBOM
       uses: anchore/sbom-action@v0.15.0
       with:
-        output-format: 'spdx-json'
-        dir: 'backend'
-        output-file: 'backend/sbom.spdx.json'
+        path: 'backend'                   # korrekter Parameter
+        format: 'spdx-json'              # gewünschtes Format
+        output-file: 'backend/sbom.spdx.json'  # explizit gesetzt
 
-    - name: Debug SBOM output # just for debugging
+    - name: Debug SBOM output
       run: ls -lah backend/ sbom* || echo "No SBOM found"
 
     - name: Upload SBOM
       uses: actions/upload-artifact@v4
       with:
-        name: sbom-siadaia
+        name: sbom-siadaia               # bewusst neutraler Name (vermeidet SARIF-Konflikte)
         path: backend/sbom.spdx.json
 
-    # 4. Dockerfile Check mit Hadolint
+    # 4. Dockerfile Linting mit Hadolint
     - name: Hadolint
       uses: hadolint/hadolint-action@v3.0.0
       with:
@@ -56,8 +56,10 @@ jobs:
     needs: security_checks
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Build Docker Image
       run: |
         cd backend
         docker build -t siadaia-backend .

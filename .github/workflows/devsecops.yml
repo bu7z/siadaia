@@ -10,16 +10,16 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: 0  # notwendig für vollständige Secret-Scans mit Gitleaks
 
-    # 1. Gitleaks Secret Scan
+    # 1. Secret Scanning mit Gitleaks
     - name: Run Gitleaks Secret Scan
       uses: gitleaks/gitleaks-action@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITLEAKS_CONFIG: .gitleaks.toml
 
-    # 2. Trivy SCA Scan
+    # 2. Dependency Scanning mit Trivy (Filesystem)
     - name: Trivy SCA Scan
       uses: aquasecurity/trivy-action@0.18.0
       with:
@@ -30,14 +30,14 @@ jobs:
         format: 'table'
         working-directory: 'backend'
 
-    # 3. (A) Install requirements.txt for Syft
+    # 3. Python Dependencies installieren (für Syft SBOM aus requirements.txt)
     - name: Install Python dependencies
       run: |
         python3 -m venv venv-backend
         source venv-backend/bin/activate
         pip install -r backend/requirements.txt
 
-    # 3. (B) SBOM aus requirements.txt (Ordner-Scan)
+    # 4. SBOM aus requirements.txt (via Scan des venv)
     - name: Generate SBOM from requirements
       uses: anchore/sbom-action@v0.15.0
       with:
@@ -46,14 +46,18 @@ jobs:
         output-file: backend/sbom-from-requirements.spdx.json
         upload-artifact: false
 
-    # Upload SBOM aus requirements.txt
+    # 5. venv wieder aufräumen
+    - name: Clean up virtual environment
+      run: rm -rf venv-backend
+
+    # 6. SBOM hochladen
     - name: Upload SBOM (requirements)
       uses: actions/upload-artifact@v4
       with:
         name: sbom-from-requirements
         path: backend/sbom-from-requirements.spdx.json
 
-    # 4. Hadolint Dockerfile Check
+    # 7. Dockerfile Linting mit Hadolint
     - name: Hadolint Dockerfile Lint
       uses: hadolint/hadolint-action@v3.0.0
       with:
@@ -71,15 +75,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
+    - name: Checkout Repository
       uses: actions/checkout@v4
 
+    # 8. Docker Image bauen
     - name: Build Docker Image
       run: |
         cd backend
         docker build -t siadaia-backend .
 
-    # SBOM aus Docker-Image erzeugen
+    # 9. SBOM aus Docker-Image erzeugen
     - name: Generate SBOM from Docker image
       uses: anchore/sbom-action@v0.15.0
       with:
@@ -88,6 +93,7 @@ jobs:
         output-file: sbom-from-image.spdx.json
         upload-artifact: false
 
+    # 10. SBOM vom Image hochladen
     - name: Upload SBOM (image)
       uses: actions/upload-artifact@v4
       with:

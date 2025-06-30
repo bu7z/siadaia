@@ -51,7 +51,7 @@ jobs:
     - name: Hadolint
       uses: hadolint/hadolint-action@v3.0.0
       with:
-        dockerfile: backend/Dockerfile
+        dockerfile: ./backend/Dockerfile
         failure-threshold: warning
 
   build:

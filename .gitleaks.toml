@@ -1,0 +1,9 @@
+title = "Gitleaks config"
+
+[allowlist]
+paths = ["**/__pycache__/", "**/node_modules/"]
+
+[[rules]]
+description = "Generic API Key"
+regex = '''\b(api_key|token|secret)[\s=:]+["\']?[a-zA-Z0-9]{32,45}["\']?'''
+tags = ["key", "generic"]

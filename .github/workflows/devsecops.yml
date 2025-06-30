@@ -12,21 +12,21 @@ jobs:
 
     # 1. Secret Scanning
     - name: Gitleaks
-      uses: gitleaks/gitleaks-action@v2.5.0  # Aktualisierte Version
+      uses: gitleaks/gitleaks-action@v2  # Aktualisierte Version
       with:
-        config-path: gitleaks.toml  # Korrigierter Dateiname
+        config-path: .gitleaks.toml  # Korrigierter Dateiname
         fail-on-error: true
 
     # 2. Dependency Scanning
     - name: Trivy SCA Scan
-      uses: aquasecurity/trivy-action@0.18.0  # Stabile Version
+      uses: aquasecurity/trivy-action@0.18.0
       with:
         scan-type: 'fs'
         ignore-unfixed: true
         severity: 'CRITICAL,HIGH'
         exit-code: '1'
-        command: 'backend/'
         format: 'table'
+        working-directory: 'backend'
 
     # 3. SBOM Generierung
     - name: Generate SBOM

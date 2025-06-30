@@ -33,7 +33,7 @@ jobs:
     # 3. (A) Install requirements.txt for Syft
     - name: Install Python dependencies
       run: |
-        python3 -m venv venv
+        python3 -m venv venv-backend
         source venv/bin/activate
         pip install -r backend/requirements.txt
 
@@ -41,7 +41,7 @@ jobs:
     - name: Generate SBOM from requirements
       uses: anchore/sbom-action@v0.15.0
       with:
-        path: ./backend
+        path: ./venv-backend
         format: spdx-json
         output-file: backend/sbom-from-requirements.spdx.json
         upload-artifact: false

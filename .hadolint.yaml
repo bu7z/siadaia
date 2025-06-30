@@ -1,3 +1,0 @@
-ignore:
-  - DL3008  # apt install ohne Versions-Pinning
-  - DL3015  # keine --no-install-recommends

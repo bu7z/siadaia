@@ -1,16 +1,18 @@
 name: DevSecOps Light
+
 on: [push, pull_request]
 
 jobs:
   security_checks:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
       with:
         fetch-depth: 0  # notwendig für vollständige Secret-Scans mit Gitleaks
 
-    # 1. Secret Scanning mit Gitleaks (offizielle Action)
+    # 1. Secret Scanning mit Gitleaks
     - name: Run Gitleaks Secret Scan
       uses: gitleaks/gitleaks-action@v2
       env:
@@ -36,10 +38,6 @@ jobs:
         format: 'spdx-json'
         output-file: 'backend/sbom.spdx.json'
         upload-artifact: false
-        artifact-name: 'sbom-siadaia'
-
-    - name: Debug SBOM output
-      run: ls -lah backend/ sbom* || echo "No SBOM found"
 
     - name: Upload SBOM
       uses: actions/upload-artifact@v4
@@ -48,22 +46,17 @@ jobs:
         path: backend/sbom.spdx.json
 
     # 4. Dockerfile Linting mit Hadolint
-    - name: Check Dockerfile before Hadolint
-      run: |
-        ls -lah backend/
-        cat backend/Dockerfile || echo "Dockerfile not readable"
-
-    - name: Hadolint
+    - name: Hadolint Dockerfile Lint
       uses: hadolint/hadolint-action@v3.0.0
       with:
         dockerfile: ./backend/Dockerfile
         failure-threshold: warning
-        config: ./.hadolint.yaml
+        config: .hadolint.yml
         verbose: true
-    - name: Output Hadolint logs
-      if: failure()
-      run: echo "Hadolint has failed. Please check the output above for details."
 
+    - name: Output Hadolint logs if failed
+      if: failure()
+      run: echo "Hadolint failed. Please check the output above."
 
   build:
     needs: security_checks

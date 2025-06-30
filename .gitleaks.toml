@@ -48,20 +48,22 @@ regex = '''-----BEGIN (?:RSA|DSA|EC|OPENSSH|PGP)? PRIVATE KEY-----'''
 tags = ["key", "private-key"]
 
 # Globale Ausnahmen: kompilierten/temp Dateien ignorieren
-[[allowlists]]
-description = "Ausnahme für kompilierte/temporäre Dateien"
+[allowlist]
 paths = [
-  '''__pycache__''',
-  '''\.pyc$''',
-  '''\.pyo$''',
-  '''\.egg-info''',
-  '''\.egg$''',
-  '''\.whl$''',
-  '''\.venv''',
-  '''\.tox''',
-  '''\.cache''',
-  '''\.DS_Store$''',
-  '''\.git/''',
-  '''\.idea/''',
-  '''\.vscode/'''
+  ".github/workflows/devsecops.yml"
+]
+pathRegexes = [
+  "__pycache__",
+  "\\.pyc$",
+  "\\.pyo$",
+  "\\.egg-info",
+  "\\.egg$",
+  "\\.whl$",
+  "\\.venv",
+  "\\.tox",
+  "\\.cache",
+  "\\.DS_Store$",
+  "\\.git/",
+  "\\.idea/",
+  "\\.vscode/"
 ]

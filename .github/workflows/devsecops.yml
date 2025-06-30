@@ -34,12 +34,16 @@ jobs:
       with:
         output-format: 'spdx-json'
         dir: 'backend'
+        output-file: 'backend/sbom.spdx.json'
+
+    - name: Debug SBOM output # just for debugging
+      run: ls -lah backend/ sbom* || echo "No SBOM found"
 
     - name: Upload SBOM
       uses: actions/upload-artifact@v4
       with:
         name: sbom-siadaia
-        path: sbom_spdx.json
+        path: backend/sbom.spdx.json
 
     # 4. Dockerfile Check mit Hadolint
     - name: Hadolint

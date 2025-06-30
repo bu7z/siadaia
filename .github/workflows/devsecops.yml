@@ -1,0 +1,59 @@
+name: DevSecOps Light
+on: [push, pull_request]
+
+jobs:
+  security_checks:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Für gitleaks notwendig
+
+    # 1. Secret Scanning
+    - name: Gitleaks
+      uses: gitleaks/gitleaks-action@v2
+      with:
+        config-path: .gitleaks.toml
+        fail-on-error: true
+
+    # 2. Dependency Scanning
+    - name: Trivy SCA Scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        ignore-unfixed: true
+        severity: 'CRITICAL,HIGH'
+        exit-code: '1'
+        command: 'backend/'  # Nur Python-Backend scannen
+        format: 'table'
+
+    # 3. SBOM Generierung
+    - name: Generate SBOM
+      uses: anchore/sbom-action@v0.14
+      with:
+        output-format: 'spdx-json'
+        dir: 'backend'
+    
+    - name: Upload SBOM
+      uses: actions/upload-artifact@v3
+      with:
+        name: sbom
+        path: sbom.spdx.json
+
+    # 4. Dockerfile Check
+    - name: Hadolint
+      uses: hadolint/hadolint-action@v3
+      with:
+        dockerfile: backend/Dockerfile
+        failure-threshold: warning
+
+  build:
+    needs: security_checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          cd backend
+          docker build -t siadaia-backend .

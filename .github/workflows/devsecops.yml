@@ -8,18 +8,14 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: 0  # notwendig für gitleaks, um ganze Git-Historie zu scannen
 
-    # 1. Secret Scanning mit Gitleaks (automatisch via CLI)
+    # 1. Secret Scanning mit Gitleaks (offizielle Action)
     - name: Run Gitleaks Secret Scan
-      run: |
-        curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
-        chmod +x gitleaks
-        ./gitleaks detect \
-          --config=.gitleaks.toml \
-          --verbose \
-          --redact \
-          --exit-code 1
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITLEAKS_CONFIG: .gitleaks.toml
 
     # 2. Dependency Scanning mit Trivy
     - name: Trivy SCA Scan
@@ -38,7 +34,7 @@ jobs:
       with:
         output-format: 'spdx-json'
         dir: 'backend'
-    
+
     - name: Upload SBOM
       uses: actions/upload-artifact@v4
       with:

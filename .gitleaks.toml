@@ -1,10 +1,67 @@
-title = "Gitleaks config"
+title = "Gitleaks-Konfiguration für Python/Flask-Projekt"
 
-[allowlist]
-pathRegexes = ["__pycache__/"]
-
+[extend]
+# GitHub Personal Access Token (Persönlicher Zugriffstoken)
 [[rules]]
-id = "generic-api-key"
-description = "Generic API Key"
-regex = '''\b(api_key|token|secret)[\s=:]+["\']?[a-zA-Z0-9]{32,45}["\']?'''
-tags = ["key", "generic"]
+id = "github-pat"
+description = "GitHub-Personal-Access-Token"
+regex = '''ghp_[0-9a-zA-Z]{36}'''
+tags = ["key", "GitHub"]
+
+# GitHub OAuth Token
+[[rules]]
+id = "github-oauth-token"
+description = "GitHub-OAuth-Token"
+regex = '''gho_[0-9a-zA-Z]{36}'''
+tags = ["key", "GitHub"]
+
+# JSON Web Token (JWT)
+[[rules]]
+id = "jwt-token"
+description = "JSON Web Token (drei Base64-Teile)"
+regex = '''[A-Za-z0-9\-_]+=*\.[A-Za-z0-9\-_]+=*\.[A-Za-z0-9\-_]+=*'''
+tags = ["token", "JWT"]
+
+# Hochentropie-Basis64-String (z.B. generische API-Schlüssel)
+[[rules]]
+id = "high-entropy-base64"
+description = "Hochentropie-String (Base64-ähnlich)"
+regex = '''([A-Za-z0-9+/]{32,}={0,2})'''
+secretGroup = 1
+entropy = 4.0
+tags = ["base64", "entropy"]
+
+# Hochentropie-Hex-String (z.B. generische API-Schlüssel)
+[[rules]]
+id = "high-entropy-hex"
+description = "Hochentropie-String (hexadezimal)"
+regex = '''([0-9a-fA-F]{32,})'''
+secretGroup = 1
+entropy = 3.5
+tags = ["hex", "entropy"]
+
+# Privater Schlüssel (RSA/DSA/EC/OpenSSH/PGP)
+[[rules]]
+id = "private-key"
+description = "Privater Schlüssel (BEGIN PRIVATE KEY)"
+regex = '''-----BEGIN (?:RSA|DSA|EC|OPENSSH|PGP)? PRIVATE KEY-----'''
+tags = ["key", "private-key"]
+
+# Globale Ausnahmen: kompilierten/temp Dateien ignorieren
+[[allowlists]]
+description = "Ausnahme für kompilierte/temporäre Dateien"
+paths = [
+  '''__pycache__''',
+  '''\.pyc$''',
+  '''\.pyo$''',
+  '''\.egg-info''',
+  '''\.egg$''',
+  '''\.whl$''',
+  '''\.venv''',
+  '''\.tox''',
+  '''\.cache''',
+  '''\.DS_Store$''',
+  '''\.git/''',
+  '''\.idea/''',
+  '''\.vscode/'''
+]

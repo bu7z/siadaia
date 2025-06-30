@@ -10,7 +10,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    # 1. Secret Scanning
+    # 1. Secret Scanning mit Gitleaks (automatisch via CLI)
     - name: Run Gitleaks Secret Scan
       run: |
         curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
@@ -21,7 +21,7 @@ jobs:
           --redact \
           --exit-code 1
 
-    # 2. Dependency Scanning
+    # 2. Dependency Scanning mit Trivy
     - name: Trivy SCA Scan
       uses: aquasecurity/trivy-action@0.18.0
       with:
@@ -32,22 +32,22 @@ jobs:
         format: 'table'
         working-directory: 'backend'
 
-    # 3. SBOM Generierung
+    # 3. SBOM Generierung mit Syft/Anchore
     - name: Generate SBOM
-      uses: anchore/sbom-action@v0.15.0  # Aktualisierte Version
+      uses: anchore/sbom-action@v0.15.0
       with:
         output-format: 'spdx-json'
         dir: 'backend'
     
     - name: Upload SBOM
-      uses: actions/upload-artifact@v4  # Auf v4 aktualisiert
+      uses: actions/upload-artifact@v4
       with:
         name: sbom
         path: sbom.spdx.json
 
-    # 4. Dockerfile Check
+    # 4. Dockerfile Check mit Hadolint
     - name: Hadolint
-      uses: hadolint/hadolint-action@v3.0.0  # Korrekte Version
+      uses: hadolint/hadolint-action@v3.0.0
       with:
         dockerfile: backend/Dockerfile
         failure-threshold: warning
@@ -56,8 +56,8 @@ jobs:
     needs: security_checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Build
-        run: |
-          cd backend
-          docker build -t siadaia-backend .
+    - uses: actions/checkout@v4
+    - name: Build
+      run: |
+        cd backend
+        docker build -t siadaia-backend .

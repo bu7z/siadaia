@@ -58,6 +58,11 @@ jobs:
       with:
         dockerfile: ./backend/Dockerfile
         failure-threshold: warning
+        verbose: true
+    - name: Output Hadolint logs
+      if: failure()
+      run: echo "Hadolint has failed. Please check the output above for details."
+
 
   build:
     needs: security_checks

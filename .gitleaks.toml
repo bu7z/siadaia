@@ -48,10 +48,8 @@ regex = '''-----BEGIN (?:RSA|DSA|EC|OPENSSH|PGP)? PRIVATE KEY-----'''
 tags = ["key", "private-key"]
 
 # Globale Ausnahmen: kompilierten/temp Dateien ignorieren
-[allowlist]
-paths = [
-  ".github/workflows/devsecops.yml"
-]
+[[allowlists]]
+description = "Temporäre/versteckte Dateien ignorieren"
 pathRegexes = [
   "__pycache__",
   "\\.pyc$",
@@ -66,4 +64,10 @@ pathRegexes = [
   "\\.git/",
   "\\.idea/",
   "\\.vscode/"
+]
+
+[[allowlists]]
+description = "SBOM-Dateien ignorieren"
+pathRegexes = [
+  "sbom-from-.*\\.spdx\\.json$"
 ]

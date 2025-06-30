@@ -34,7 +34,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m venv venv-backend
-        source venv/bin/activate
+        source venv-backend/bin/activate
         pip install -r backend/requirements.txt
 
     # 3. (B) SBOM aus requirements.txt (Ordner-Scan)

@@ -32,9 +32,9 @@ jobs:
     - name: Generate SBOM
       uses: anchore/sbom-action@v0.15.0
       with:
-        path: './backend'                   # korrekter Parameter
-        format: 'spdx-json'              # gewünschtes Format
-        output-file: 'backend/sbom.spdx.json'  # explizit gesetzt
+        path: './backend'
+        format: 'spdx-json'
+        output-file: 'backend/sbom.spdx.json'
         upload-artifact: false
         artifact-name: 'sbom-siadaia'
 
@@ -44,14 +44,14 @@ jobs:
     - name: Upload SBOM
       uses: actions/upload-artifact@v4
       with:
-        name: sbom-siadaia               # bewusst neutraler Name (vermeidet SARIF-Konflikte)
+        name: sbom-siadaia
         path: backend/sbom.spdx.json
 
     # 4. Dockerfile Linting mit Hadolint
     - name: Check Dockerfile before Hadolint
-    run: |
-      ls -lah backend/
-      cat backend/Dockerfile || echo "Dockerfile not readable"
+      run: |
+        ls -lah backend/
+        cat backend/Dockerfile || echo "Dockerfile not readable"
 
     - name: Hadolint
       uses: hadolint/hadolint-action@v3.0.0

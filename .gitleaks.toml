@@ -67,7 +67,8 @@ pathRegexes = [
 ]
 
 [[allowlists]]
-description = "SBOM-Dateien ignorieren"
+description = "SBOM-Dateien (egal wo) ignorieren"
 pathRegexes = [
-  "sbom-from-.*\\.spdx\\.json$"
+  ".*/?sbom-from-.*\\.spdx\\.json$"
 ]
+
